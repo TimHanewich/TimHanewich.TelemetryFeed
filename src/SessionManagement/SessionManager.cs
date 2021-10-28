@@ -11,7 +11,7 @@ namespace TimHanewich.TelemetryFeed.SessionManagement
         private List<KeyValuePair<TelemetrySnapshot, bool>> TelemetrySnapshots; //bool represents "IsUploaded"
 
         //In-situ uploading
-        public bool InSituUploadingEnabled {get; set;}
+        public bool InSituUploadEnabled {get; set;}
         public TimeSpan InSituUploadFrequency {get; set;}
         private TelemetrySnapshot LastUploadedTelemetrySnapshot;
         
@@ -20,7 +20,7 @@ namespace TimHanewich.TelemetryFeed.SessionManagement
             ToUseCloudClient = authenticated_cloud_client;
             TelemetrySnapshots = new List<KeyValuePair<TelemetrySnapshot, bool>>();
             InSituUploadFrequency = new TimeSpan(0, 0, 10);
-            InSituUploadingEnabled = false;
+            InSituUploadEnabled = false;
         }
 
         public async void IngestTelemetrySnapshot(TelemetrySnapshot ts)
@@ -28,7 +28,7 @@ namespace TimHanewich.TelemetryFeed.SessionManagement
 
             //Upload?
             bool WasUploaded = false;
-            if (InSituUploadingEnabled)
+            if (InSituUploadEnabled)
             {
                 //Is it time to upload?
                 bool TimeToUpload = false;
