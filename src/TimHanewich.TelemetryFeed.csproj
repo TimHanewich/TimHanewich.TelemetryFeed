@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
-    <PackageReference Include="TimHanewich.SqlHelper" Version="0.2.0" />
+    <PackageReference Include="TimHanewich.SqlHelper" Version="0.2.1" />
   </ItemGroup>
 
 </Project>
