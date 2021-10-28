@@ -8,7 +8,7 @@ namespace TimHanewich.TelemetryFeed.SessionManagement
     public class SessionManager
     {
         private CloudClient ToUseCloudClient;
-        private List<KeyValuePair<TelemetrySnapshot, bool>> TelemetrySnapshots; //bool represents "IsUploaded"
+        private List<TelemetrySnapshotUploadStatus> TelemetrySnapshots;
 
         //In-situ uploading
         public bool InSituUploadEnabled {get; set;}
@@ -18,7 +18,7 @@ namespace TimHanewich.TelemetryFeed.SessionManagement
         public SessionManager(CloudClient authenticated_cloud_client)
         {
             ToUseCloudClient = authenticated_cloud_client;
-            TelemetrySnapshots = new List<KeyValuePair<TelemetrySnapshot, bool>>();
+            TelemetrySnapshots = new List<TelemetrySnapshotUploadStatus>();
             InSituUploadFrequency = new TimeSpan(0, 0, 10);
             InSituUploadEnabled = false;
         }
@@ -55,7 +55,22 @@ namespace TimHanewich.TelemetryFeed.SessionManagement
             }
 
             //Add it
-            TelemetrySnapshots.Add(new KeyValuePair<TelemetrySnapshot, bool>(ts, WasUploaded));
+            TelemetrySnapshotUploadStatus status = new TelemetrySnapshotUploadStatus();
+            status.Snapshot = ts;
+            status.Uploaded = WasUploaded;
+            TelemetrySnapshots.Add(status);
+        }
+
+        public async Task UploadUnUploadedTelemetrySnapshotsAsync()
+        {
+            for (int t = 0; t < TelemetrySnapshots.Count - 1; t++)
+            {
+                if (TelemetrySnapshots[t].Uploaded == false)
+                {
+                    await ToUseCloudClient.UploadTelemetrySnapshotAsync(TelemetrySnapshots[t].Snapshot);
+                    TelemetrySnapshots[t].Uploaded = true;
+                }
+            }
         }
 
         public int CountTelemetrySnapshots()
@@ -66,9 +81,9 @@ namespace TimHanewich.TelemetryFeed.SessionManagement
         public int CountUploadedTelemetrySnapshots()
         {
             int val = 0;
-            foreach (KeyValuePair<TelemetrySnapshot, bool> kvp in TelemetrySnapshots)
+            foreach (TelemetrySnapshotUploadStatus kvp in TelemetrySnapshots)
             {
-                if (kvp.Value == true)
+                if (kvp.Uploaded == true)
                 {
                     val = val + 1;
                 }
@@ -79,9 +94,9 @@ namespace TimHanewich.TelemetryFeed.SessionManagement
         public int CountUnUploadedTelemetrySnapshots()
         {
             int val = 0;
-            foreach (KeyValuePair<TelemetrySnapshot, bool> kvp in TelemetrySnapshots)
+            foreach (TelemetrySnapshotUploadStatus kvp in TelemetrySnapshots)
             {
-                if (kvp.Value == false)
+                if (kvp.Uploaded == false)
                 {
                     val = val + 1;
                 }
