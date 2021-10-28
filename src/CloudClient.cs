@@ -23,5 +23,14 @@ namespace TimHanewich.TelemetryFeed
             SqlConnection sqlcon = new SqlConnection(SqlConnectionString);
             return sqlcon;
         }
+    
+        public async Task ExecuteNonQueryAsync(string query)
+        {
+            SqlConnection sqlcon = GetSqlConnection();
+            sqlcon.Open();
+            SqlCommand sqlcmd = new SqlCommand(query, sqlcon);
+            await sqlcmd.ExecuteNonQueryAsync();
+            sqlcon.Close();
+        }
     }
 }
