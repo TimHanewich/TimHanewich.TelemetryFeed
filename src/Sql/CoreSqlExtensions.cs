@@ -103,5 +103,26 @@ namespace TimHanewich.TelemetryFeed.Sql
 
             await cc.ExecuteNonQueryAsync(ih.ToString());
         }
+    
+    
+        public static async Task<bool> RegisteredUserExistsAsync(this TelemetryFeedSqlClient cc, Guid id)
+        {
+            string cmd = "select count(Id) from RegisteredUser where Id = '" + id.ToString() + "'";
+            SqlConnection sqlcon = cc.GetSqlConnection();
+            sqlcon.Open();
+            SqlCommand sqlcmd = new SqlCommand(cmd, sqlcon);
+            SqlDataReader dr = await sqlcmd.ExecuteReaderAsync();
+            await dr.ReadAsync();
+            int val = dr.GetInt32(0);
+            sqlcon.Close();
+            if (val > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
