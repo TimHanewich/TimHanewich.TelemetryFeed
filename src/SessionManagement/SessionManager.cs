@@ -64,7 +64,7 @@ namespace TimHanewich.TelemetryFeed.SessionManagement
 
         public async Task UploadUnUploadedTelemetrySnapshotsAsync()
         {
-            for (int t = 0; t < TelemetrySnapshots.Count - 1; t++)
+            for (int t = 0; t < TelemetrySnapshots.Count; t++)
             {
                 if (TelemetrySnapshots[t].Uploaded == false)
                 {
