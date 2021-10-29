@@ -23,6 +23,11 @@ namespace TimHanewich.TelemetryFeed
         public float? MagnetoY {get; set;}
         public float? MagnetoZ {get; set;}
 
+        //Orientation
+        public float? OrientationX {get; set;}
+        public float? OrientationY {get; set;}
+        public float? OrientationZ {get; set;}
+
         //GPS
         public float? Latitude {get; set;}
         public float? Longitude {get; set;}
