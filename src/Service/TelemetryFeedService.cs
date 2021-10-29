@@ -12,6 +12,11 @@ namespace TimHanewich.TelemetryFeed.Service
     {
         private Guid Key;
 
+        public TelemetryFeedService(Guid auth_key)
+        {
+            Key = auth_key;
+        }
+
         private async Task<string> ExecuteSqlAsync(string query) //The returned string is the response (in JSON probably)
         {
             HttpRequestMessage req = PrepareHttpRequestMessage();
