@@ -10,24 +10,26 @@ namespace TimHanewich.TelemetryFeed.Sql
 {
     public static class CoreSqlExtensions
     {
-        public static async Task UploadRegisteredUserAsync(this TelemetryFeedSqlClient cc, RegisteredUser user)
+        //To SQL query
+
+        public static string ToSqlInsert(this RegisteredUser user)
         {
             InsertHelper ih = new InsertHelper("RegisteredUser");
             ih.Add("Id", user.Id.ToString(), true);
             ih.Add("Username", user.Username, true);
             ih.Add("Password", user.Password, true);
-            await cc.ExecuteNonQueryAsync(ih.ToString());
+            return ih.ToString();
         }
 
-        public static async Task UploadSessionAsync(this TelemetryFeedSqlClient cc, Session s)
+        public static string ToSqlInsert(this Session s)
         {
             InsertHelper ih = new InsertHelper("Session");
             ih.Add("Id", s.Id.ToString(), true);
             ih.Add("Owner", s.Owner.ToString(), true);
-            await cc.ExecuteNonQueryAsync(ih.ToString());
+            return ih.ToString();
         }
 
-        public static async Task UploadTelemetrySnapshotAsync(this TelemetryFeedSqlClient cc, TelemetrySnapshot ts)
+        public static string ToSqlInsert(this TelemetrySnapshot ts)
         {
             InsertHelper ih = new InsertHelper("TelemetrySnapshot");
 
@@ -101,28 +103,12 @@ namespace TimHanewich.TelemetryFeed.Sql
                 ih.Add("Longitude", ts.Longitude.Value.ToString());
             }
 
-            await cc.ExecuteNonQueryAsync(ih.ToString());
+            return ih.ToString();
         }
+
     
-    
-        public static async Task<bool> RegisteredUserExistsAsync(this TelemetryFeedSqlClient cc, Guid id)
-        {
-            string cmd = "select count(Id) from RegisteredUser where Id = '" + id.ToString() + "'";
-            SqlConnection sqlcon = cc.GetSqlConnection();
-            sqlcon.Open();
-            SqlCommand sqlcmd = new SqlCommand(cmd, sqlcon);
-            SqlDataReader dr = await sqlcmd.ExecuteReaderAsync();
-            await dr.ReadAsync();
-            int val = dr.GetInt32(0);
-            sqlcon.Close();
-            if (val > 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+
+
+        
     }
 }
