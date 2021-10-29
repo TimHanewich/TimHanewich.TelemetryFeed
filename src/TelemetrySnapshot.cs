@@ -1,36 +1,72 @@
 using System;
+using System.Collections.Generic;
 
 namespace TimHanewich.TelemetryFeed
 {
     public class TelemetrySnapshot
     {
-        public Guid Id {get; set;}
-        public Guid FromSession {get; set;}
-        public DateTime CapturedAtUtc {get; set;}
+        public Guid Id {get; set;} //16 bytes
+        public Guid FromSession {get; set;} //16 bytes
+        public DateTime CapturedAtUtc {get; set;} //8 bytes
 
         //Accelerometer
-        public float? AccelerationX {get; set;}
-        public float? AccelerationY {get; set;}
-        public float? AccelerationZ {get; set;}
+        public float? AccelerationX {get; set;} //4 bytes
+        public float? AccelerationY {get; set;} //4 bytes
+        public float? AccelerationZ {get; set;} //4 bytes
 
         //Gyroscope
-        public float? GyroscopeX {get; set;}
-        public float? GyroscopeY {get; set;}
-        public float? GyroscopeZ {get; set;}
+        public float? GyroscopeX {get; set;} //4 bytes
+        public float? GyroscopeY {get; set;} //4 bytes
+        public float? GyroscopeZ {get; set;} //4 bytes
 
         //Magneto
-        public float? MagnetoX {get; set;}
-        public float? MagnetoY {get; set;}
-        public float? MagnetoZ {get; set;}
+        public float? MagnetoX {get; set;} //4 bytes
+        public float? MagnetoY {get; set;} //4 bytes
+        public float? MagnetoZ {get; set;} //4 bytes
 
         //Orientation
-        public float? OrientationX {get; set;}
-        public float? OrientationY {get; set;}
-        public float? OrientationZ {get; set;}
+        public float? OrientationX {get; set;} //4 bytes
+        public float? OrientationY {get; set;} //4 bytes
+        public float? OrientationZ {get; set;} //4 bytes
 
         //GPS
-        public float? Latitude {get; set;}
-        public float? Longitude {get; set;}
+        public float? Latitude {get; set;} //4 bytes
+        public float? Longitude {get; set;} //4 bytes
+
+        public byte[] ToBytes()
+        {
+            List<byte> ToReturn = new List<byte>();
+            ToReturn.AddRange(Id.ToByteArray());
+            ToReturn.AddRange(FromSession.ToByteArray());
+            ToReturn.AddRange(BitConverter.GetBytes(CapturedAtUtc.ToOADate()));
+            ToReturn.AddRange(NullableFloatToBytes(AccelerationX));
+            ToReturn.AddRange(NullableFloatToBytes(AccelerationY));
+            ToReturn.AddRange(NullableFloatToBytes(AccelerationZ));
+            ToReturn.AddRange(NullableFloatToBytes(GyroscopeX));
+            ToReturn.AddRange(NullableFloatToBytes(GyroscopeY));
+            ToReturn.AddRange(NullableFloatToBytes(GyroscopeZ));
+            ToReturn.AddRange(NullableFloatToBytes(MagnetoX));
+            ToReturn.AddRange(NullableFloatToBytes(MagnetoY));
+            ToReturn.AddRange(NullableFloatToBytes(MagnetoZ));
+            ToReturn.AddRange(NullableFloatToBytes(OrientationX));
+            ToReturn.AddRange(NullableFloatToBytes(OrientationY));
+            ToReturn.AddRange(NullableFloatToBytes(OrientationZ));
+            ToReturn.AddRange(NullableFloatToBytes(Latitude));
+            ToReturn.AddRange(NullableFloatToBytes(Longitude));
+            return ToReturn.ToArray();
+        }
+
+        private byte[] NullableFloatToBytes(float? value)
+        {
+            if (value.HasValue == false)
+            {
+                return BitConverter.GetBytes(float.NaN);
+            }
+            else
+            {
+                return BitConverter.GetBytes(value.Value);
+            }
+        }
 
     }
 }
