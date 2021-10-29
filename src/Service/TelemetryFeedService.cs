@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using TimHanewich.TelemetryFeed.Sql;
 
 namespace TimHanewich.TelemetryFeed.Service
 {
@@ -42,5 +43,30 @@ namespace TimHanewich.TelemetryFeed.Service
             req.Headers.Add("key", Key.ToString());
             return req;
         }
+    
+    
+    
+
+
+        //UPLOADS
+
+        public async Task UploadRegisteredUserAsync(RegisteredUser user)
+        {
+            await ExecuteSqlAsync(user.ToSqlInsert());
+        }
+
+        public async Task UploadSessionAsync(Session s)
+        {
+            await ExecuteSqlAsync(s.ToSqlInsert());
+        }
+
+        public async Task UploadTelemetrySnapshot(TelemetrySnapshot ts)
+        {
+            await ExecuteSqlAsync(ts.ToSqlInsert());
+        }
+    
+    
+    
+    
     }
 }
