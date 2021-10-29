@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TimHanewich.Toolkit;
 
 namespace TimHanewich.TelemetryFeed
 {
@@ -56,6 +57,32 @@ namespace TimHanewich.TelemetryFeed
             return ToReturn.ToArray();
         }
 
+        public static TelemetrySnapshot FromBytes(byte[] bytes)
+        {
+            ByteArrayManager BAM = new ByteArrayManager(bytes);
+            TelemetrySnapshot ToReturn = new TelemetrySnapshot();
+            
+            ToReturn.Id = new Guid(BAM.NextBytes(16));
+            ToReturn.FromSession = new Guid(BAM.NextBytes(16));
+            ToReturn.CapturedAtUtc = DateTime.FromOADate(BitConverter.ToDouble(BAM.NextBytes(8)));
+            ToReturn.AccelerationX = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.AccelerationY = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.AccelerationZ = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.GyroscopeX = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.GyroscopeY = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.GyroscopeZ = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.MagnetoX = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.MagnetoY = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.MagnetoZ = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.OrientationX = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.OrientationY = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.OrientationZ = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.Latitude = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.Longitude = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+
+            return ToReturn;
+        }
+
         private byte[] NullableFloatToBytes(float? value)
         {
             if (value.HasValue == false)
@@ -68,5 +95,17 @@ namespace TimHanewich.TelemetryFeed
             }
         }
 
+        private float? BytesToNullableFloat(byte[] bytes)
+        {
+            float value = BitConverter.ToSingle(bytes, 0);
+            if (value == float.NaN)
+            {
+                return null;
+            }
+            else
+            {
+                return value;
+            }
+        }
     }
 }
