@@ -60,7 +60,7 @@ namespace TimHanewich.TelemetryFeed.Service
             await ExecuteSqlAsync(s.ToSqlInsert());
         }
 
-        public async Task UploadTelemetrySnapshot(TelemetrySnapshot ts)
+        public async Task UploadTelemetrySnapshotAsync(TelemetrySnapshot ts)
         {
             await ExecuteSqlAsync(ts.ToSqlInsert());
         }
