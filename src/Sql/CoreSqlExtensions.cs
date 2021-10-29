@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 using System.Data.Sql;
 using TimHanewich.SqlHelper;
 
-namespace TimHanewich.TelemetryFeed
+namespace TimHanewich.TelemetryFeed.Sql
 {
     public static class CoreSqlExtensions
     {

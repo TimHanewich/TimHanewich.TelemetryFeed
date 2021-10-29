@@ -6,7 +6,7 @@ using System.Data;
 using System.Data.Sql;
 using System.Data.SqlClient;
 
-namespace TimHanewich.TelemetryFeed
+namespace TimHanewich.TelemetryFeed.Sql
 {
     public class CloudClient
     {
