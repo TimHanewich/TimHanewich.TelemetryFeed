@@ -10,7 +10,7 @@ namespace TimHanewich.TelemetryFeed.Sql
 {
     public static class CoreSqlExtensions
     {
-        public static async Task UploadRegisteredUserAsync(this CloudClient cc, RegisteredUser user)
+        public static async Task UploadRegisteredUserAsync(this TelemetryFeedSqlClient cc, RegisteredUser user)
         {
             InsertHelper ih = new InsertHelper("RegisteredUser");
             ih.Add("Id", user.Id.ToString(), true);
@@ -19,7 +19,7 @@ namespace TimHanewich.TelemetryFeed.Sql
             await cc.ExecuteNonQueryAsync(ih.ToString());
         }
 
-        public static async Task UploadSessionAsync(this CloudClient cc, Session s)
+        public static async Task UploadSessionAsync(this TelemetryFeedSqlClient cc, Session s)
         {
             InsertHelper ih = new InsertHelper("Session");
             ih.Add("Id", s.Id.ToString(), true);
@@ -27,7 +27,7 @@ namespace TimHanewich.TelemetryFeed.Sql
             await cc.ExecuteNonQueryAsync(ih.ToString());
         }
 
-        public static async Task UploadTelemetrySnapshotAsync(this CloudClient cc, TelemetrySnapshot ts)
+        public static async Task UploadTelemetrySnapshotAsync(this TelemetryFeedSqlClient cc, TelemetrySnapshot ts)
         {
             InsertHelper ih = new InsertHelper("TelemetrySnapshot");
 

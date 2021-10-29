@@ -8,12 +8,12 @@ using System.Data.SqlClient;
 
 namespace TimHanewich.TelemetryFeed.Sql
 {
-    public class CloudClient
+    public class TelemetryFeedSqlClient
     {
         //Saved internal variables
         private string SqlConnectionString;
 
-        public CloudClient(string sql_connection_string)
+        public TelemetryFeedSqlClient(string sql_connection_string)
         {
             SqlConnectionString = sql_connection_string;
         }
