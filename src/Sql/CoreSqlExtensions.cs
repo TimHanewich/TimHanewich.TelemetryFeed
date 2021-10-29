@@ -77,6 +77,20 @@ namespace TimHanewich.TelemetryFeed.Sql
                 ih.Add("MagnetoZ", ts.MagnetoZ.Value.ToString());
             }
 
+            //Orientation
+            if (ts.OrientationX.HasValue)
+            {
+                ih.Add("OrientationX", ts.OrientationX.ToString());
+            }
+            if (ts.OrientationY.HasValue)
+            {
+                ih.Add("OrientationY", ts.OrientationY.ToString());
+            }
+            if (ts.OrientationZ.HasValue)
+            {
+                ih.Add("OrientationZ", ts.OrientationZ.ToString());
+            }
+
             //Lat and long
             if (ts.Latitude.HasValue)
             {
