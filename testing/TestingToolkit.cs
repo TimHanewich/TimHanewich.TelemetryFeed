@@ -22,6 +22,9 @@ namespace testing
             ts.MagnetoX = Convert.ToSingle(r.NextDouble());
             ts.MagnetoY = Convert.ToSingle(r.NextDouble());
             ts.MagnetoZ = Convert.ToSingle(r.NextDouble());
+            ts.OrientationX = Convert.ToSingle(r.NextDouble());
+            ts.OrientationY = Convert.ToSingle(r.NextDouble());
+            ts.OrientationZ = Convert.ToSingle(r.NextDouble());
             ts.Latitude = Convert.ToSingle(r.NextDouble());
             ts.Longitude = Convert.ToSingle(r.NextDouble());
             return ts;
