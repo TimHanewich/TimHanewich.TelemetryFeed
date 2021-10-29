@@ -64,7 +64,7 @@ namespace TimHanewich.TelemetryFeed
             
             ToReturn.Id = new Guid(BAM.NextBytes(16));
             ToReturn.FromSession = new Guid(BAM.NextBytes(16));
-            ToReturn.CapturedAtUtc = DateTime.FromOADate(BitConverter.ToDouble(BAM.NextBytes(8)));
+            ToReturn.CapturedAtUtc = DateTime.FromOADate(BitConverter.ToDouble(BAM.NextBytes(8), 0));
             ToReturn.AccelerationX = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
             ToReturn.AccelerationY = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
             ToReturn.AccelerationZ = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
