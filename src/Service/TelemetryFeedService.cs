@@ -69,11 +69,7 @@ namespace TimHanewich.TelemetryFeed.Service
             
             //Write the body
             byte[] bytes = ts.ToBytes();
-            MemoryStream ms = new MemoryStream();
-            StreamWriter sw = new StreamWriter(ms);
-            sw.Write(bytes);
-            sw.Flush();
-            ms.Position = 0;
+            MemoryStream ms = new MemoryStream(bytes);
             req.Content = new StreamContent(ms);
 
             //Set the content header now that the content is loaded in
