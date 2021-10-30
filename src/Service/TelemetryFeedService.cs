@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using TimHanewich.TelemetryFeed.Sql;
+using System.Net.Http.Headers;
 
 namespace TimHanewich.TelemetryFeed.Service
 {
@@ -62,7 +63,30 @@ namespace TimHanewich.TelemetryFeed.Service
 
         public async Task UploadTelemetrySnapshotAsync(TelemetrySnapshot ts)
         {
-            await ExecuteSqlAsync(ts.ToSqlInsert());
+            HttpRequestMessage req = PrepareHttpRequestMessage();
+            req.Method = HttpMethod.Post;
+            req.RequestUri = new Uri("https://telemetryfeedapi.azurewebsites.net/api/telemetrysnapshot");
+            
+            //Write the body
+            byte[] bytes = ts.ToBytes();
+            MemoryStream ms = new MemoryStream();
+            StreamWriter sw = new StreamWriter(ms);
+            sw.Write(bytes);
+            sw.Flush();
+            ms.Position = 0;
+            req.Content = new StreamContent(ms);
+
+            //Set the content header now that the content is loaded in
+            req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+            //Post it
+            HttpClient hc = new HttpClient();
+            HttpResponseMessage resp = await hc.SendAsync(req);
+            if (resp.StatusCode != HttpStatusCode.Created)
+            {
+                string body = await resp.Content.ReadAsStringAsync();
+                throw new Exception("Upload of TelemetrySnapshot failed with code '" + resp.StatusCode.ToString() + "'. Msg: " + body);
+            }
         }
     
     
