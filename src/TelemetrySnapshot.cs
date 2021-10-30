@@ -98,7 +98,7 @@ namespace TimHanewich.TelemetryFeed
         private float? BytesToNullableFloat(byte[] bytes)
         {
             float value = BitConverter.ToSingle(bytes, 0);
-            if (value == float.NaN)
+            if (float.IsNaN(value))
             {
                 return null;
             }
