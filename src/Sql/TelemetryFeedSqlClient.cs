@@ -110,7 +110,7 @@ namespace TimHanewich.TelemetryFeed.Sql
 
         public async Task <Session[]> DownloadSessionsAsync(Guid owner_id)
         {
-            string cmd = "select Id,Owner,Title,CreatedAtUtc,RightLeanCalibration,LeftLeanCalibration from Session where Owner = '" + owner_id.ToString() + "' order by CreatedAtUtc desc";
+            string cmd = CoreSqlExtensions.DownloadSessionsAsync(owner_id);
             SqlConnection sqlcon = GetSqlConnection();
             sqlcon.Open();
             SqlCommand sqlcmd = new SqlCommand(cmd, sqlcon);

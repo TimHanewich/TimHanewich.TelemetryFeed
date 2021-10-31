@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using TimHanewich.TelemetryFeed.Sql;
 using System.Net.Http.Headers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace TimHanewich.TelemetryFeed.Service
 {
@@ -87,6 +89,43 @@ namespace TimHanewich.TelemetryFeed.Service
     
     
     
+        //Downloads
+
+        public async Task<Session[]> DownloadSessionsAsync(Guid owner_id)
+        {
+            string cmd = CoreSqlExtensions.DownloadSessionsAsync(owner_id);
+
+            //Call
+            string response = null;
+            try
+            {
+                response = await ExecuteSqlAsync(cmd);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Request to download sessions failed. Msg: " + ex.Message);
+            }
+
+            //Parse
+            JArray ja = null;
+            try
+            {
+                ja = JArray.Parse(response);
+            }
+            catch
+            {
+                throw new Exception("Internal error. Unable to parse response from service.");
+            }
+
+            //Get each
+            List<Session> ToReturn = new List<Session>();
+            foreach (JObject jo in ja)
+            {
+                ToReturn.Add(JsonConvert.DeserializeObject<Session>(jo.ToString()));
+            }
+
+            return ToReturn.ToArray();
+        }
     
     }
 }
