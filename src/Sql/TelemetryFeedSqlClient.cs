@@ -108,7 +108,7 @@ namespace TimHanewich.TelemetryFeed.Sql
             return ru;
         }
 
-        public async Task <Session[]> GetSessionsAsync(Guid owner_id)
+        public async Task <Session[]> DownloadSessionsAsync(Guid owner_id)
         {
             string cmd = "select Id,Owner,Title,CreatedAtUtc,RightLeanCalibration,LeftLeanCalibration from Session where Owner = '" + owner_id.ToString() + "' order by CreatedAtUtc desc";
             SqlConnection sqlcon = GetSqlConnection();
