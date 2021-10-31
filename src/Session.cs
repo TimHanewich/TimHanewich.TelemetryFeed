@@ -8,7 +8,7 @@ namespace TimHanewich.TelemetryFeed
         public Guid Owner {get; set;}
         public string Title {get; set;}
         public DateTime CreatedAtUtc {get; set;}
-        public Guid RightLeanCalibration {get; set;}
-        public Guid LeftLeanCalibration {get; set;}
+        public Guid? RightLeanCalibration {get; set;}
+        public Guid? LeftLeanCalibration {get; set;}
     }
 }

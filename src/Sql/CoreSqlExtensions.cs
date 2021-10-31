@@ -26,6 +26,23 @@ namespace TimHanewich.TelemetryFeed.Sql
             InsertHelper ih = new InsertHelper("Session");
             ih.Add("Id", s.Id.ToString(), true);
             ih.Add("Owner", s.Owner.ToString(), true);
+            if (s.Title != null)
+            {
+                if (s.Title != "")
+                {
+                    ih.Add("Title", s.Title, true);
+                }
+            }
+            ih.Add("CreatedAtUtc", SqlToolkit.ToSqlDateTimeString(s.CreatedAtUtc), true);
+            if (s.RightLeanCalibration.HasValue)
+            {
+                ih.Add("RightLeanCalibration", s.RightLeanCalibration.ToString(), true);
+            }
+            if (s.LeftLeanCalibration.HasValue)
+            {
+                ih.Add("LeftLeanCalibration", s.LeftLeanCalibration.ToString(), true);
+            }
+            
             return ih.ToString();
         }
 
