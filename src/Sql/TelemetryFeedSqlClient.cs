@@ -52,6 +52,61 @@ namespace TimHanewich.TelemetryFeed.Sql
             await ExecuteNonQueryAsync(ts.ToSqlInsert());
         }
     
+        public async Task<RegisteredUser> DownloadRegisteredUserAsync(string username)
+        {
+            string cmd = "select Id, Username, Password from RegisteredUser where Username = '" + username + "'";
+            SqlConnection sqlcon = GetSqlConnection();
+            sqlcon.Open();
+            SqlCommand sqlcmd = new SqlCommand(cmd, sqlcon);
+            SqlDataReader dr = await sqlcmd.ExecuteReaderAsync();
+            if (dr.HasRows == false)
+            {
+                sqlcon.Close();
+                throw new Exception("Unable to find user with username '" + username + "'");
+            }
+            dr.Read();
+            RegisteredUser ToReturn = ExtractRegisteredUserFromSqlDataReader(dr);
+            sqlcon.Close();
+            return ToReturn;
+        }
+
+        public RegisteredUser ExtractRegisteredUserFromSqlDataReader(SqlDataReader dr, string prefix = "")
+        {
+            RegisteredUser ru = new RegisteredUser();
+
+            //Id
+            try
+            {
+                ru.Id = dr.GetGuid(dr.GetOrdinal(prefix + "Id"));
+            }
+            catch
+            {
+                
+            }
+
+            //Username
+            try
+            {
+                ru.Username = dr.GetString(dr.GetOrdinal(prefix + "Username"));
+            }
+            catch
+            {
+
+            }
+
+            //Password
+            try
+            {
+                ru.Password = dr.GetString(dr.GetOrdinal(prefix + "Password"));
+            }
+            catch
+            {
+
+            }
+
+            return ru;
+        }
+
     
         //SQL checks
 
