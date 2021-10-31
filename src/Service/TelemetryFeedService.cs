@@ -127,5 +127,34 @@ namespace TimHanewich.TelemetryFeed.Service
             return ToReturn.ToArray();
         }
     
+        public async Task<RegisteredUser> DownloadRegisteredUserAsync(string username)
+        {
+            string cmd = CoreSqlExtensions.DownloadRegisteredUserAsync(username);
+            
+            //Call
+            string response = null;
+            try
+            {
+                response = await ExecuteSqlAsync(cmd);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while calling service. Msg: " + ex.Message);
+            }
+
+            //Parse the body
+            RegisteredUser ToReturn = null;
+            try
+            {
+                ToReturn = JsonConvert.DeserializeObject<RegisteredUser>(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while parsing returned content. Msg: " + ex.Message);
+            }
+
+            return ToReturn;
+        }
+
     }
 }

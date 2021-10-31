@@ -55,7 +55,7 @@ namespace TimHanewich.TelemetryFeed.Sql
     
         public async Task<RegisteredUser> DownloadRegisteredUserAsync(string username)
         {
-            string cmd = "select Id, Username, Password from RegisteredUser where Username = '" + username + "'";
+            string cmd = CoreSqlExtensions.DownloadRegisteredUserAsync(username);
             SqlConnection sqlcon = GetSqlConnection();
             sqlcon.Open();
             SqlCommand sqlcmd = new SqlCommand(cmd, sqlcon);
