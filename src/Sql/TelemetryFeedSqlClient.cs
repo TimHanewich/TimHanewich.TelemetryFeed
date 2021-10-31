@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.Sql;
 using System.Data.SqlClient;
+using System.Collections.Generic;
 
 namespace TimHanewich.TelemetryFeed.Sql
 {
@@ -107,7 +108,90 @@ namespace TimHanewich.TelemetryFeed.Sql
             return ru;
         }
 
-    
+        public async Task <Session[]> GetSessionsAsync(Guid owner_id)
+        {
+            string cmd = "select Id,Owner,Title,CreatedAtUtc,RightLeanCalibration,LeftLeanCalibration from Session where Owner = '" + owner_id.ToString() + "' order by CreatedAtUtc desc";
+            SqlConnection sqlcon = GetSqlConnection();
+            sqlcon.Open();
+            SqlCommand sqlcmd = new SqlCommand(cmd, sqlcon);
+            SqlDataReader dr = await sqlcmd.ExecuteReaderAsync();
+            List<Session> ToReturn = new List<Session>();
+            while (dr.Read())
+            {
+                ToReturn.Add(ExtractSessionFromSqlDataReader(dr));
+            }
+            sqlcon.Close();
+            return ToReturn.ToArray();
+        }
+
+        public Session ExtractSessionFromSqlDataReader(SqlDataReader dr, string prefix = "")
+        {
+            Session s = new Session();
+            
+            //Id
+            try
+            {
+                s.Id = dr.GetGuid(dr.GetOrdinal(prefix + "Id"));
+            }
+            catch
+            {
+
+            }
+
+            //Owner
+            try
+            {
+                s.Owner = dr.GetGuid(dr.GetOrdinal(prefix + "Owner"));
+            }
+            catch
+            {
+
+            }
+
+            //Title
+            try
+            {
+                s.Title = dr.GetString(dr.GetOrdinal(prefix + "Title"));
+            }
+            catch
+            {
+
+            }
+
+            //CreatedAtUtc
+            try
+            {
+                s.CreatedAtUtc = dr.GetDateTime(dr.GetOrdinal(prefix + "CreatedAtUtc"));
+            }
+            catch
+            {
+
+            }
+
+            //RightLeanCalibration
+            try
+            {
+                s.RightLeanCalibration = dr.GetGuid(dr.GetOrdinal(prefix + "RightLeanCalibration"));
+            }
+            catch
+            {
+
+            }
+
+            //LeftLeanCalibration
+            try
+            {
+                s.LeftLeanCalibration = dr.GetGuid(dr.GetOrdinal(prefix + "LeftLeanCalibration"));
+            }
+            catch
+            {
+
+            }
+            
+            return s;
+        }
+
+
         //SQL checks
 
         public async Task<bool> RegisteredUserExistsAsync(Guid id)
