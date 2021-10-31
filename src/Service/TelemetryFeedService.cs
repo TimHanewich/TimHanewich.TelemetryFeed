@@ -143,10 +143,18 @@ namespace TimHanewich.TelemetryFeed.Service
             }
 
             //Parse the body
+            JArray ja = JArray.Parse(response);
+            if (ja.Count == 0)
+            {
+                throw new Exception("Unable to find Registered User with Username '" + username + "'");
+            }
+
+
+            //Parse the body
             RegisteredUser ToReturn = null;
             try
             {
-                ToReturn = JsonConvert.DeserializeObject<RegisteredUser>(response);
+                ToReturn = JsonConvert.DeserializeObject<RegisteredUser>(ja[0].ToString());
             }
             catch (Exception ex)
             {
