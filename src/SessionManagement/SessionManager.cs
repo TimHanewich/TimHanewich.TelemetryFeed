@@ -105,5 +105,19 @@ namespace TimHanewich.TelemetryFeed.SessionManagement
             return val;
         }
 
+        //Retrieval
+        public TelemetrySnapshotUploadStatus[] AllTelemetrySnapshots()
+        {
+            return TelemetrySnapshots.ToArray();
+        }
+
+        //Adding
+        public static SessionManager Load(TelemetrySnapshotUploadStatus[] data, TelemetryFeedService service)
+        {
+            SessionManager ToReturn = new SessionManager(service);
+            ToReturn.TelemetrySnapshots = new List<TelemetrySnapshotUploadStatus>();
+            ToReturn.TelemetrySnapshots.AddRange(data);
+            return ToReturn;
+        }
     }
 }
