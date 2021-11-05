@@ -10,5 +10,7 @@ namespace TimHanewich.TelemetryFeed
         public DateTime CreatedAtUtc {get; set;}
         public Guid? RightLeanCalibration {get; set;}
         public Guid? LeftLeanCalibration {get; set;}
+        public float? IntendedDestinationLatitude {get; set;}
+        public float? IntendedDestinationLongitude {get; set;}
     }
 }
