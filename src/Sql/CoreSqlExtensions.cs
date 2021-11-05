@@ -42,6 +42,14 @@ namespace TimHanewich.TelemetryFeed.Sql
             {
                 ih.Add("LeftLeanCalibration", s.LeftLeanCalibration.ToString(), true);
             }
+            if (s.IntendedDestinationLatitude.HasValue)
+            {
+                ih.Add("IntendedDestinationLatitude", s.IntendedDestinationLatitude.Value.ToString());
+            }
+            if (s.IntendedDestinationLongitude.HasValue)
+            {
+                ih.Add("IntendedDestinationLongitude", s.IntendedDestinationLongitude.ToString());
+            }
             
             return ih.ToString();
         }
