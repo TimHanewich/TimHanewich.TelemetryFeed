@@ -118,7 +118,7 @@ namespace TimHanewich.TelemetryFeed.Sql
                 ih.Add("OrientationZ", ts.OrientationZ.ToString());
             }
 
-            //Lat and long
+            //Lat and long and GPS location
             if (ts.Latitude.HasValue)
             {
                 ih.Add("Latitude", ts.Latitude.Value.ToString());
@@ -127,6 +127,14 @@ namespace TimHanewich.TelemetryFeed.Sql
             {
                 ih.Add("Longitude", ts.Longitude.Value.ToString());
             }
+            if (ts.GpsAccuracy.HasValue)
+            {
+                if (ts.GpsAccuracy.Value != float.NaN)
+                {
+                    ih.Add("GpsAccuracy", ts.GpsAccuracy.Value.ToString());
+                }
+            }
+
 
             return ih.ToString();
         }
