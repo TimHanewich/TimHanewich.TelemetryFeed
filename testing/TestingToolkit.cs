@@ -27,6 +27,7 @@ namespace testing
             ts.OrientationZ = Convert.ToSingle(r.NextDouble());
             ts.Latitude = Convert.ToSingle(r.NextDouble());
             ts.Longitude = Convert.ToSingle(r.NextDouble());
+            ts.GpsAccuracy = Convert.ToSingle(r.NextDouble() * 100);
             return ts;
         }
     }
