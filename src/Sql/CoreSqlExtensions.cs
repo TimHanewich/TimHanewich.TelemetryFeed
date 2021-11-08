@@ -36,11 +36,11 @@ namespace TimHanewich.TelemetryFeed.Sql
             ih.Add("CreatedAtUtc", SqlToolkit.ToSqlDateTimeString(s.CreatedAtUtc), true);
             if (s.RightLeanCalibration.HasValue)
             {
-                ih.Add("RightLeanCalibration", s.RightLeanCalibration.ToString(), true);
+                ih.Add("RightLeanCalibration", s.RightLeanCalibration.Value.ToString(), true);
             }
             if (s.LeftLeanCalibration.HasValue)
             {
-                ih.Add("LeftLeanCalibration", s.LeftLeanCalibration.ToString(), true);
+                ih.Add("LeftLeanCalibration", s.LeftLeanCalibration.Value.ToString(), true);
             }
             if (s.IntendedDestinationLatitude.HasValue)
             {
@@ -48,7 +48,7 @@ namespace TimHanewich.TelemetryFeed.Sql
             }
             if (s.IntendedDestinationLongitude.HasValue)
             {
-                ih.Add("IntendedDestinationLongitude", s.IntendedDestinationLongitude.ToString());
+                ih.Add("IntendedDestinationLongitude", s.IntendedDestinationLongitude.Value.ToString());
             }
             
             return ih.ToString();
