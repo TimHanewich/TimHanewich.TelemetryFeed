@@ -33,6 +33,7 @@ namespace TimHanewich.TelemetryFeed
         //GPS
         public float? Latitude {get; set;} //4 bytes
         public float? Longitude {get; set;} //4 bytes
+        public float? GpsAccuracy {get; set;} //4 bytes
 
         public byte[] ToBytes()
         {
@@ -54,6 +55,7 @@ namespace TimHanewich.TelemetryFeed
             ToReturn.AddRange(NullableFloatToBytes(OrientationZ));
             ToReturn.AddRange(NullableFloatToBytes(Latitude));
             ToReturn.AddRange(NullableFloatToBytes(Longitude));
+            ToReturn.AddRange(NullableFloatToBytes(GpsAccuracy));
             return ToReturn.ToArray();
         }
 
@@ -79,6 +81,7 @@ namespace TimHanewich.TelemetryFeed
             ToReturn.OrientationZ = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
             ToReturn.Latitude = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
             ToReturn.Longitude = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.GpsAccuracy = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
 
             return ToReturn;
         }
