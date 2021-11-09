@@ -147,7 +147,7 @@ namespace TimHanewich.TelemetryFeed.Sql
             return cmd;
         }
 
-        public static string DownloadRegisteredUserAsync(string username)
+        public static string DownloadRegisteredUser(string username)
         {
             string cmd = "select Id, Username, Password from RegisteredUser where Username = '" + username + "'";
             return cmd;
