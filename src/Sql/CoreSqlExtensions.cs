@@ -141,7 +141,7 @@ namespace TimHanewich.TelemetryFeed.Sql
 
 
         //DOWNLOADS
-        public static string DownloadSessionsAsync(Guid owner_id)
+        public static string DownloadSessions(Guid owner_id)
         {
             string cmd = "select Id,Owner,Title,CreatedAtUtc,RightLeanCalibration,LeftLeanCalibration from Session where Owner = '" + owner_id.ToString() + "' order by CreatedAtUtc desc";
             return cmd;
