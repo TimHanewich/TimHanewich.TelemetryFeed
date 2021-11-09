@@ -158,6 +158,12 @@ namespace TimHanewich.TelemetryFeed.Sql
             string cmd = "select top " + top.ToString() + " Id, Owner, Title, CreatedAtUtc, RightLeanCalibration, LeftLeanCalibration, IntendedDestinationLatitude, IntendedDestinationLongitude from Session order by CreatedAtUtc desc";
             return cmd;
         }
+
+        public static string DownloadRegisteredUser(Guid id)
+        {
+            string cmd = "select Id, Username, Password from RegisteredUser where Id = '" + id.ToString() + "'";
+            return cmd;
+        }
         
     }
 }
