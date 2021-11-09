@@ -93,7 +93,7 @@ namespace TimHanewich.TelemetryFeed.Service
 
         public async Task<Session[]> DownloadSessionsAsync(Guid owner_id)
         {
-            string cmd = CoreSqlExtensions.DownloadSessionsAsync(owner_id);
+            string cmd = CoreSqlExtensions.DownloadSessions(owner_id);
 
             //Call
             string response = null;
@@ -129,7 +129,7 @@ namespace TimHanewich.TelemetryFeed.Service
     
         public async Task<RegisteredUser> DownloadRegisteredUserAsync(string username)
         {
-            string cmd = CoreSqlExtensions.DownloadRegisteredUserAsync(username);
+            string cmd = CoreSqlExtensions.DownloadRegisteredUser(username);
             
             //Call
             string response = null;
@@ -147,6 +147,41 @@ namespace TimHanewich.TelemetryFeed.Service
             if (ja.Count == 0)
             {
                 throw new Exception("Unable to find Registered User with Username '" + username + "'");
+            }
+
+
+            //Parse the body
+            RegisteredUser ToReturn = null;
+            try
+            {
+                ToReturn = JsonConvert.DeserializeObject<RegisteredUser>(ja[0].ToString());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while parsing returned content. Msg: " + ex.Message);
+            }
+
+            return ToReturn;
+        }
+
+        public async Task<RegisteredUser> DownloadRegisteredUserAsync(Guid id)
+        {
+            string cmd = CoreSqlExtensions.DownloadRegisteredUser(id);
+            string response = null;
+            try
+            {
+                response = await ExecuteSqlAsync(cmd);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while downloading registered user '" + id.ToString() + "': " + ex.Message);
+            }
+
+            //Parse the body
+            JArray ja = JArray.Parse(response);
+            if (ja.Count == 0)
+            {
+                throw new Exception("Unable to find Registered User with Id '" + id.ToString() + "'");
             }
 
 
