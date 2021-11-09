@@ -153,7 +153,11 @@ namespace TimHanewich.TelemetryFeed.Sql
             return cmd;
         }
 
-
+        public static string DownloadRecentSessions(int top = 5)
+        {
+            string cmd = "select top " + top.ToString() + " Id, Owner, Title, CreatedAtUtc, RightLeanCalibration, LeftLeanCalibration, IntendedDestinationLatitude, IntendedDestinationLongitude from Session order by CreatedAtUtc desc";
+            return cmd;
+        }
         
     }
 }
