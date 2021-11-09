@@ -224,6 +224,31 @@ namespace TimHanewich.TelemetryFeed.Service
             return ToReturn.ToArray();
         }
 
+        public async Task<TelemetrySnapshot[]> DownloadTelemetrySnapshotsAsync(Guid from_session, int top = 1)
+        {
+            string cmd = CoreSqlExtensions.DownloadTelemetrySnapshots(from_session, top);
+            string response = null;
+            try
+            {
+                response = await ExecuteSqlAsync(cmd);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failure while requesting telemetry snapshots: " + ex.Message);
+            }
+
+            //Parse
+            JArray ja = JArray.Parse(response);
+
+            //Parse each
+            List<TelemetrySnapshot> ToReturn = new List<TelemetrySnapshot>();
+            foreach (JObject jo in ja)
+            {
+                ToReturn.Add(JsonConvert.DeserializeObject<TelemetrySnapshot>(jo.ToString()));
+            }
+
+            return ToReturn.ToArray();
+        }
 
     }
 }
