@@ -55,7 +55,7 @@ namespace TimHanewich.TelemetryFeed.Sql
     
         public async Task<RegisteredUser> DownloadRegisteredUserAsync(string username)
         {
-            string cmd = CoreSqlExtensions.DownloadRegisteredUserAsync(username);
+            string cmd = CoreSqlExtensions.DownloadRegisteredUser(username);
             SqlConnection sqlcon = GetSqlConnection();
             sqlcon.Open();
             SqlCommand sqlcmd = new SqlCommand(cmd, sqlcon);
@@ -110,7 +110,7 @@ namespace TimHanewich.TelemetryFeed.Sql
 
         public async Task <Session[]> DownloadSessionsAsync(Guid owner_id)
         {
-            string cmd = CoreSqlExtensions.DownloadSessionsAsync(owner_id);
+            string cmd = CoreSqlExtensions.DownloadSessions(owner_id);
             SqlConnection sqlcon = GetSqlConnection();
             sqlcon.Open();
             SqlCommand sqlcmd = new SqlCommand(cmd, sqlcon);
