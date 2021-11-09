@@ -199,5 +199,31 @@ namespace TimHanewich.TelemetryFeed.Service
             return ToReturn;
         }
 
+        public async Task<Session[]> DownloadRecentSessionsAsync(int top = 5)
+        {
+            string cmd = CoreSqlExtensions.DownloadRecentSessions(top);
+            string response = null;
+            try
+            {
+                response = await ExecuteSqlAsync(cmd);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failure while downloading recent sessions: " + ex.Message);
+            }
+
+            JArray ja = JArray.Parse(response);
+
+            List<Session> ToReturn = new List<Session>();
+            foreach (JObject jo in ja)
+            {
+                Session s = JsonConvert.DeserializeObject<Session>(jo.ToString());
+                ToReturn.Add(s);
+            }
+
+            return ToReturn.ToArray();
+        }
+
+
     }
 }
