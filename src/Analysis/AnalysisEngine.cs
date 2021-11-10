@@ -69,5 +69,13 @@ namespace TimHanewich.TelemetryFeed.Analysis
             LastReceivedTelemetrySnapshot = ts;
         }
 
+
+        public StationaryStop[] Stops
+        {
+            get
+            {
+                return _Stops.ToArray();
+            }
+        }
     }
 }
