@@ -84,11 +84,14 @@ namespace TimHanewich.TelemetryFeed.Analysis
                     if (d.Miles > 0)
                     {
                         TimeSpan timelapsed = ts.CapturedAtUtc - LastReceivedTelemetrySnapshot.CapturedAtUtc;
-                        float mph = d.Miles / Convert.ToSingle(timelapsed.TotalHours);
-                        if (mph > _TopSpeedMph)
+                        if (timelapsed.TotalHours > 0)
                         {
-                            _TopSpeedMph = mph;
-                            _TopSpeedDetectedAt = ts.Id;
+                            float mph = d.Miles / Convert.ToSingle(timelapsed.TotalHours);
+                            if (mph > _TopSpeedMph)
+                            {
+                                _TopSpeedMph = mph;
+                                _TopSpeedDetectedAt = ts.Id;
+                            }
                         }
                     }
 
