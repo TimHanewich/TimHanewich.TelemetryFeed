@@ -135,6 +135,18 @@ namespace TimHanewich.TelemetryFeed
             return Ordered.ToArray();
         }
 
+        public static TelemetrySnapshot[] InverseOrder(TelemetrySnapshot[] snapshots)
+        {
+            List<TelemetrySnapshot> ToPullFrom = new List<TelemetrySnapshot>();
+            ToPullFrom.AddRange(snapshots);
+            List<TelemetrySnapshot> Ordered = new List<TelemetrySnapshot>();
+            while (ToPullFrom.Count > 0)
+            {
+                Ordered.Add(ToPullFrom[ToPullFrom.Count-1]);
+            }
+            return Ordered.ToArray();
+        }
+
         #endregion
     
     }
