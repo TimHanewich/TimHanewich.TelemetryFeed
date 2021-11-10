@@ -148,6 +148,18 @@ namespace TimHanewich.TelemetryFeed
             return Ordered.ToArray();
         }
 
+        public static TelemetrySnapshot Find(TelemetrySnapshot[] snapshots, Guid id)
+        {
+            foreach (TelemetrySnapshot ts in snapshots)
+            {
+                if (ts.Id == id)
+                {
+                    return ts;
+                }
+            }
+            return null;
+        }
+
         #endregion
     
     }
