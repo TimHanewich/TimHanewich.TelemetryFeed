@@ -143,6 +143,7 @@ namespace TimHanewich.TelemetryFeed
             while (ToPullFrom.Count > 0)
             {
                 Ordered.Add(ToPullFrom[ToPullFrom.Count-1]);
+                ToPullFrom.RemoveAt(ToPullFrom.Count - 1);
             }
             return Ordered.ToArray();
         }
