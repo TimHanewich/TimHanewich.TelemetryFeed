@@ -16,6 +16,10 @@ namespace TimHanewich.TelemetryFeed.Analysis
         private RiderStatus _Status;
         private List<StationaryStop> _Stops = new List<StationaryStop>();
 
+        //Top speed
+        private float _TopSpeedMph;
+        private Guid _TopSpeedDetectedAt; //Guid of telemetry snapshot where the top speed was detected
+
 
         public void Feed(TelemetrySnapshot ts)
         {
@@ -32,6 +36,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
                     loc2.Longitude = ts.Longitude.Value;
                     Distance d = GeoToolkit.MeasureDistance(loc1, loc2);
                     
+                    //Calculate stops
                     if (d.Miles == 0)
                     {
                         if (_Status == RiderStatus.Moving)
@@ -75,6 +80,18 @@ namespace TimHanewich.TelemetryFeed.Analysis
                         ZeroDistanceCoveredFirstNoticed = null;
                     }
 
+                    //Calculate this speed
+                    if (d.Miles > 0)
+                    {
+                        TimeSpan timelapsed = ts.CapturedAtUtc - LastReceivedTelemetrySnapshot.CapturedAtUtc;
+                        float mph = d.Miles / Convert.ToSingle(timelapsed.TotalHours);
+                        if (mph > _TopSpeedMph)
+                        {
+                            _TopSpeedMph = mph;
+                            _TopSpeedDetectedAt = ts.Id;
+                        }
+                    }
+
                 }
             }
             
@@ -87,6 +104,22 @@ namespace TimHanewich.TelemetryFeed.Analysis
             get
             {
                 return _Stops.ToArray();
+            }
+        }
+    
+        public float TopSpeedMph
+        {
+            get
+            {
+                return _TopSpeedMph;
+            }
+        }
+
+        public Guid TopSpeedDetectedAt
+        {
+            get
+            {
+                return _TopSpeedDetectedAt;
             }
         }
     }
