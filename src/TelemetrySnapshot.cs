@@ -110,5 +110,32 @@ namespace TimHanewich.TelemetryFeed
                 return value;
             }
         }
+    
+
+        #region "toolkit"
+
+        public static TelemetrySnapshot[] OldestToNewest(TelemetrySnapshot[] snapshots)
+        {
+            List<TelemetrySnapshot> ToPullFrom = new List<TelemetrySnapshot>();
+            ToPullFrom.AddRange(snapshots);
+            List<TelemetrySnapshot> Ordered = new List<TelemetrySnapshot>();
+            while (ToPullFrom.Count > 0)
+            {
+                TelemetrySnapshot winner = ToPullFrom[0];
+                foreach (TelemetrySnapshot ts in ToPullFrom)
+                {
+                    if (ts.CapturedAtUtc < winner.CapturedAtUtc)
+                    {
+                        winner = ts;
+                    }
+                }
+                Ordered.Add(winner);
+                ToPullFrom.Remove(winner);
+            }
+            return Ordered.ToArray();
+        }
+
+        #endregion
+    
     }
 }
