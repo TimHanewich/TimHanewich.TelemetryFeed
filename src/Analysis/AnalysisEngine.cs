@@ -36,8 +36,19 @@ namespace TimHanewich.TelemetryFeed.Analysis
                     {
                         if (_Status == RiderStatus.Moving)
                         {
-                            _Status = RiderStatus.Stationary;
-                            ZeroDistanceCoveredFirstNoticed = ts;
+                            //Only officially make this stationary (flip to stationary) if the stop was more than a certain length of time
+                            if (ZeroDistanceCoveredFirstNoticed == null)
+                            {
+                                ZeroDistanceCoveredFirstNoticed = ts;
+                            }
+                            else
+                            {
+                                TimeSpan TimeSinceFirstNoMove = ts.CapturedAtUtc - ZeroDistanceCoveredFirstNoticed.CapturedAtUtc;
+                                if (TimeSinceFirstNoMove.TotalSeconds > 4)
+                                {
+                                    _Status = RiderStatus.Stationary;
+                                }
+                            }
                         }
                         else if (_Status == RiderStatus.Stationary)
                         {
@@ -61,6 +72,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
                                 ZeroDistanceCoveredFirstNoticed = null; //Set the zero distance covered to null.
                             }
                         }
+                        ZeroDistanceCoveredFirstNoticed = null;
                     }
 
                 }
