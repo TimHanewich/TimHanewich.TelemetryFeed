@@ -86,6 +86,36 @@ namespace TimHanewich.TelemetryFeed
             return ToReturn;
         }
 
+        public static TelemetrySnapshot[] ArrayFromBytes(byte[] bytes)
+        {
+            int SingleTelemetrySnapshotLength = 100; //The length (in bytes) of a single telemetry snapshot
+            float NumberOfSnapshotsF = Convert.ToSingle(bytes.Length) / Convert.ToSingle(SingleTelemetrySnapshotLength);
+
+            //Get number of snapshots
+            int NumberOfSnapshots = 0;
+            try
+            {
+                NumberOfSnapshots = Convert.ToInt32(NumberOfSnapshotsF);
+            }
+            catch
+            {
+                throw new Exception("The number of bytes supplied doesn't make an even number of Telemetry Snapshots");
+            }
+
+            //Get each
+            ByteArrayManager bam = new ByteArrayManager(bytes);
+            List<TelemetrySnapshot> ToReturn = new List<TelemetrySnapshot>();
+            for (int t = 0; t < NumberOfSnapshots; t++)
+            {
+                byte[] thesebytes = bam.NextBytes(SingleTelemetrySnapshotLength);
+                TelemetrySnapshot ts = TelemetrySnapshot.FromBytes(thesebytes);
+                ToReturn.Add(ts);
+            }
+
+            return ToReturn.ToArray();
+        }
+
+
         private byte[] NullableFloatToBytes(float? value)
         {
             if (value.HasValue == false)
