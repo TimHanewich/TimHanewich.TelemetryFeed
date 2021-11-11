@@ -216,6 +216,178 @@ namespace TimHanewich.TelemetryFeed.Sql
     
     
     
+        #region "Sql Data Reader Extraction"
+
+        public TelemetrySnapshot ExtractTelemetrySnapshotFromSqlDataReader(SqlDataReader dr, string prefix = "")
+        {
+            TelemetrySnapshot ToReturn = new TelemetrySnapshot();
+
+            //Id
+            try
+            {
+                ToReturn.Id = dr.GetGuid(dr.GetOrdinal(prefix + "Id"));
+            }
+            catch
+            {
+
+            }
+
+            //FromSession
+            try
+            {
+                ToReturn.FromSession = dr.GetGuid(dr.GetOrdinal(prefix + "FromSession"));
+            }
+            catch
+            {
+
+            }
+
+            //Acceleration
+            try
+            {
+                ToReturn.AccelerationX = dr.GetFloat(dr.GetOrdinal(prefix + "AccelerationX"));
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                ToReturn.AccelerationY = dr.GetFloat(dr.GetOrdinal(prefix + "AccelerationY"));
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                ToReturn.AccelerationZ = dr.GetFloat(dr.GetOrdinal(prefix + "AccelerationZ"));
+            }
+            catch
+            {
+
+            }
+
+            //Gyro
+            try
+            {
+                ToReturn.GyroscopeX = dr.GetFloat(dr.GetOrdinal(prefix + "GyroscopeX"));
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                ToReturn.GyroscopeY = dr.GetFloat(dr.GetOrdinal(prefix + "GyroscopeY"));
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                ToReturn.GyroscopeZ = dr.GetFloat(dr.GetOrdinal(prefix + "GyroscopeZ"));
+            }
+            catch
+            {
+
+            }
+
+            //Magneto
+            try
+            {
+                ToReturn.MagnetoX = dr.GetFloat(dr.GetOrdinal(prefix + "MagnetoX"));
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                ToReturn.MagnetoY = dr.GetFloat(dr.GetOrdinal(prefix + "MagnetoY"));
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                ToReturn.MagnetoZ = dr.GetFloat(dr.GetOrdinal(prefix + "MagnetoZ"));
+            }
+            catch
+            {
+
+            }
+
+            //Lat + Long
+            try
+            {
+                ToReturn.Latitude = dr.GetFloat(dr.GetOrdinal(prefix + "Latitude"));
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                ToReturn.Longitude = dr.GetFloat(dr.GetOrdinal(prefix + "Longitude"));
+            }
+            catch
+            {
+
+            }
+
+            //CapturedAtutc
+            try
+            {
+                ToReturn.CapturedAtUtc = dr.GetDateTime(dr.GetOrdinal(prefix + "CapturedAtUtc"));
+            }
+            catch
+            {
+
+            }
+
+            //Orientaiton
+            try
+            {
+                ToReturn.OrientationX = dr.GetFloat(prefix + "OrientationX");
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                ToReturn.OrientationY = dr.GetFloat(prefix + "OrientationY");
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                ToReturn.OrientationZ = dr.GetFloat(prefix + "OrientationZ");
+            }
+            catch
+            {
+
+            }
+
+            //GPS Accuracy
+            try
+            {
+                ToReturn.GpsAccuracy = dr.GetFloat(prefix + "GpsAccuracy");
+            }
+            catch
+            {
+
+            }
+
+            return ToReturn;
+        }
+
+        #endregion
     
     
     
