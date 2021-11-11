@@ -117,7 +117,28 @@ namespace TimHanewich.TelemetryFeed.Analysis
                 }
                 else
                 {
-                    return MphCalculations.Average();
+                    
+                    float stdev = TimHanewich.Toolkit.MathToolkit.StandardDeviation(MphCalculations.ToArray());
+
+                    List<float> ToConsiderForMphAvgCalc = new List<float>();
+                    foreach (float val in MphCalculations)
+                    {
+                        float zScore = Math.Abs(val - MphCalculations.Average()) / stdev;
+                        if (zScore < 1.5)
+                        {
+                            ToConsiderForMphAvgCalc.Add(val);
+                        }
+                    }
+
+                    if (ToConsiderForMphAvgCalc.Count > 0)
+                    {
+                        return ToConsiderForMphAvgCalc.Average();
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                    
                 }
             }
         }
