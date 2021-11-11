@@ -14,7 +14,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
         private List<TelemetrySnapshot> LastReceivedTelemetrySnapshots;
 
         //for stops
-        private TelemetrySnapshot ZeroDistanceCoveredFirstNoticed;
+        private TelemetrySnapshot StationaryFirstNoticed;
         private RiderStatus _Status;
         private List<StationaryStop> _Stops = new List<StationaryStop>();
 
@@ -39,6 +39,39 @@ namespace TimHanewich.TelemetryFeed.Analysis
             {
                 _TopSpeedMph = speed;
                 _TopSpeedDetectedAt = ts.Id;
+            }
+
+            //Check for stop
+            if (speed < 2) //SPEEDS BELOW THIS INDICATE a 'stop'
+            {
+                if (_Status == RiderStatus.Moving)
+                {
+                    _Status = RiderStatus.Stationary; //Mark as stationary
+                    StationaryFirstNoticed = ts; //Mark the first time we are seeing it is stationary. 
+                }
+            }
+            else //We are over the minimum speed and are now moving
+            {
+                if (_Status == RiderStatus.Stationary) //If it was previously marked as stationary
+                {
+                    TimeSpan TimeSinceStationaryBegan = ts.CapturedAtUtc - StationaryFirstNoticed.CapturedAtUtc;
+                    StationaryStop ss = new StationaryStop();
+                    ss.Beginning = StationaryFirstNoticed.Id;
+                    ss.End = ts.Id;
+                    if (StationaryFirstNoticed.Latitude.HasValue)
+                    {
+                        ss.Latitude = StationaryFirstNoticed.Latitude.Value;
+                    }
+                    if (StationaryFirstNoticed.Longitude.HasValue)
+                    {
+                        ss.Longitude = StationaryFirstNoticed.Longitude.Value;
+                    }
+                    _Stops.Add(ss);
+                    
+                    //Flip and clear
+                    _Status = RiderStatus.Moving;
+                    StationaryFirstNoticed = null;
+                }
             }
         }
 
