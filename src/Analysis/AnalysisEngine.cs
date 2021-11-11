@@ -3,6 +3,7 @@ using TimHanewich.TelemetryFeed;
 using TimHanewich.Toolkit;
 using TimHanewich.Toolkit.Geo;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TimHanewich.TelemetryFeed.Analysis
 {
@@ -66,6 +67,51 @@ namespace TimHanewich.TelemetryFeed.Analysis
             foreach (TelemetrySnapshot snapshot in ToRemove)
             {
                 LastReceivedTelemetrySnapshots.Remove(snapshot);
+            }
+        }
+
+        public float CurrentSpeedMph
+        {
+            get
+            {
+                List<float> MphCalculations = new List<float>();
+                if (LastReceivedTelemetrySnapshots != null)
+                {
+                    //Go through each
+                    foreach (TelemetrySnapshot ts in LastReceivedTelemetrySnapshots)
+                    {
+                        if (ts.Latitude.HasValue && ts.Longitude.HasValue)
+                        {
+                            foreach (TelemetrySnapshot ToCompareTo in LastReceivedTelemetrySnapshots)
+                            {
+                                if (ToCompareTo != ts)
+                                {
+                                    if (ToCompareTo.Latitude.HasValue && ToCompareTo.Longitude.HasValue)
+                                    {
+                                        TimeSpan TimeDifference = ts.CapturedAtUtc - ToCompareTo.CapturedAtUtc;
+                                        if (TimeDifference.Milliseconds > 250)
+                                        {
+                                            Geolocation loc1 = new Geolocation();
+                                            loc1.Latitude = ts.Latitude.Value;
+                                            loc1.Longitude = ts.Longitude.Value;
+                                            Geolocation loc2 = new Geolocation();
+                                            loc2.Latitude = ToCompareTo.Latitude.Value;
+                                            loc2.Longitude = ToCompareTo.Longitude.Value;
+
+                                            Distance d = GeoToolkit.MeasureDistance(loc1, loc2);
+                                            if (d.Miles > 0)
+                                            {
+                                                float mph = d.Miles / Convert.ToSingle(TimeDifference.Hours);
+                                                MphCalculations.Add(mph);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                return MphCalculations.Average();
             }
         }
 
