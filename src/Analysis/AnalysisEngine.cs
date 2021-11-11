@@ -101,7 +101,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
                                             Distance d = GeoToolkit.MeasureDistance(loc1, loc2);
                                             if (d.Miles > 0)
                                             {
-                                                float mph = d.Miles / Convert.ToSingle(TimeDifference.Hours);
+                                                float mph = d.Miles / Convert.ToSingle(TimeDifference.TotalHours);
                                                 MphCalculations.Add(mph);
                                             }
                                         }
@@ -111,7 +111,14 @@ namespace TimHanewich.TelemetryFeed.Analysis
                         }
                     }
                 }
-                return MphCalculations.Average();
+                if (MphCalculations.Count == 0)
+                {
+                    return 0f;
+                }
+                else
+                {
+                    return MphCalculations.Average();
+                }
             }
         }
 
