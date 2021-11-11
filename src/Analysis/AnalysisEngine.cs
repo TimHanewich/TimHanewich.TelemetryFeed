@@ -111,35 +111,33 @@ namespace TimHanewich.TelemetryFeed.Analysis
                         }
                     }
                 }
+
+                //If there were no MPH's to calculate, return 0 (standing still)
                 if (MphCalculations.Count == 0)
                 {
                     return 0f;
                 }
-                else
+
+
+                //Do a standard deviation analysis to throw out the biggest outliers 
+                float stdev = TimHanewich.Toolkit.MathToolkit.StandardDeviation(MphCalculations.ToArray());
+                List<float> ToConsiderForMphAvgCalc = new List<float>();
+                foreach (float val in MphCalculations)
                 {
-                    
-                    float stdev = TimHanewich.Toolkit.MathToolkit.StandardDeviation(MphCalculations.ToArray());
-
-                    List<float> ToConsiderForMphAvgCalc = new List<float>();
-                    foreach (float val in MphCalculations)
+                    float zScore = Math.Abs(val - MphCalculations.Average()) / stdev;
+                    if (zScore < 1.5)
                     {
-                        float zScore = Math.Abs(val - MphCalculations.Average()) / stdev;
-                        if (zScore < 1.5)
-                        {
-                            ToConsiderForMphAvgCalc.Add(val);
-                        }
+                        ToConsiderForMphAvgCalc.Add(val);
                     }
-
-                    if (ToConsiderForMphAvgCalc.Count > 0)
-                    {
-                        return ToConsiderForMphAvgCalc.Average();
-                    }
-                    else
-                    {
-                        return 0;
-                    }
-                    
                 }
+
+                //If there were none left after throwing out the outliers, return 0
+                if (ToConsiderForMphAvgCalc.Count == 0)
+                {
+                    return 0;
+                }
+                    
+                return ToConsiderForMphAvgCalc.Average();
             }
         }
 
