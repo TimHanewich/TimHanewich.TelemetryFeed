@@ -32,6 +32,14 @@ namespace TimHanewich.TelemetryFeed.Analysis
         {
             //Add it to the buffer
             AddSnapshotToBuffer(ts);
+
+            //Check for top speed
+            float speed = CurrentSpeedMph;
+            if (speed > _TopSpeedMph)
+            {
+                _TopSpeedMph = speed;
+                _TopSpeedDetectedAt = ts.Id;
+            }
         }
 
         private void AddSnapshotToBuffer(TelemetrySnapshot ts)
