@@ -236,6 +236,8 @@ namespace TimHanewich.TelemetryFeed.Analysis
             }
         }
     
+        #region "Riding timing statistics"
+
         public TimeSpan TotalTime
         {
             get
@@ -275,5 +277,28 @@ namespace TimHanewich.TelemetryFeed.Analysis
                 return tt - ts;
             }
         }
+    
+        public float PercentTimeStationary
+        {
+            get
+            {
+                TimeSpan total = TotalTime;
+                TimeSpan stationary = TotalTimeStationary;
+                float ToReturn = Convert.ToSingle(stationary.TotalSeconds) / Convert.ToSingle(total.TotalSeconds);
+                return ToReturn;
+            }
+        }
+
+        public float PercentTimeMoving
+        {
+            get
+            {
+                float PercentStationary = PercentTimeStationary;
+                return 1f - PercentStationary;
+            }
+        }
+
+        #endregion
+    
     }
 }
