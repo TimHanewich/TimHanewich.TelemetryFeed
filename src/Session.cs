@@ -12,5 +12,6 @@ namespace TimHanewich.TelemetryFeed
         public Guid? LeftLeanCalibration {get; set;}
         public float? IntendedDestinationLatitude {get; set;}
         public float? IntendedDestinationLongitude {get; set;}
+        public short? ClientVersionCode {get; set;} //Verion code (Version number) of the client application at the time of the session being created
     }
 }
