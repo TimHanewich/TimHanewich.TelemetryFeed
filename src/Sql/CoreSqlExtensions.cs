@@ -50,6 +50,10 @@ namespace TimHanewich.TelemetryFeed.Sql
             {
                 ih.Add("IntendedDestinationLongitude", s.IntendedDestinationLongitude.Value.ToString());
             }
+            if (s.ClientVersionCode.HasValue)
+            {
+                ih.Add("ClientVersionCode", s.ClientVersionCode.Value.ToString());
+            }
             
             return ih.ToString();
         }
