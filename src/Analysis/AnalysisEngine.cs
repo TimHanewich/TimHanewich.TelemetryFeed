@@ -148,34 +148,46 @@ namespace TimHanewich.TelemetryFeed.Analysis
                 List<float> MphCalculations = new List<float>();
                 if (LastReceivedTelemetrySnapshots != null)
                 {
-                    //Go through each
+
+                    //Get a collection of those in the most recent snapshots that we can actually use
+                    List<TelemetrySnapshot> CanUse = new List<TelemetrySnapshot>();
                     foreach (TelemetrySnapshot ts in LastReceivedTelemetrySnapshots)
                     {
                         if (ts.Latitude.HasValue && ts.Longitude.HasValue)
                         {
-                            foreach (TelemetrySnapshot ToCompareTo in LastReceivedTelemetrySnapshots)
+                            if (ts.GpsAccuracy.HasValue)
                             {
-                                if (ToCompareTo != ts)
+                                if (ts.GpsAccuracy.Value < 20)
                                 {
-                                    if (ToCompareTo.Latitude.HasValue && ToCompareTo.Longitude.HasValue)
-                                    {
-                                        TimeSpan TimeDifference = ts.CapturedAtUtc - ToCompareTo.CapturedAtUtc;
-                                        if (TimeDifference.Milliseconds > 250)
-                                        {
-                                            Geolocation loc1 = new Geolocation();
-                                            loc1.Latitude = ts.Latitude.Value;
-                                            loc1.Longitude = ts.Longitude.Value;
-                                            Geolocation loc2 = new Geolocation();
-                                            loc2.Latitude = ToCompareTo.Latitude.Value;
-                                            loc2.Longitude = ToCompareTo.Longitude.Value;
+                                    CanUse.Add(ts);
+                                }
+                            }
+                        }
+                    }
 
-                                            Distance d = GeoToolkit.MeasureDistance(loc1, loc2);
-                                            if (d.Miles > 0)
-                                            {
-                                                float mph = d.Miles / Convert.ToSingle(TimeDifference.TotalHours);
-                                                MphCalculations.Add(mph);
-                                            }
-                                        }
+
+                    //Go through each
+                    foreach (TelemetrySnapshot ts in CanUse)
+                    {
+                        foreach (TelemetrySnapshot ToCompareTo in CanUse)
+                        {
+                            if (ToCompareTo != ts)
+                            {
+                                TimeSpan TimeDifference = ts.CapturedAtUtc - ToCompareTo.CapturedAtUtc;
+                                if (TimeDifference.Milliseconds > 250)
+                                {
+                                    Geolocation loc1 = new Geolocation();
+                                    loc1.Latitude = ts.Latitude.Value;
+                                    loc1.Longitude = ts.Longitude.Value;
+                                    Geolocation loc2 = new Geolocation();
+                                    loc2.Latitude = ToCompareTo.Latitude.Value;
+                                    loc2.Longitude = ToCompareTo.Longitude.Value;
+
+                                    Distance d = GeoToolkit.MeasureDistance(loc1, loc2);
+                                    if (d.Miles > 0)
+                                    {
+                                        float mph = d.Miles / Convert.ToSingle(TimeDifference.TotalHours);
+                                        MphCalculations.Add(mph);
                                     }
                                 }
                             }
