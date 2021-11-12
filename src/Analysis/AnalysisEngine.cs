@@ -13,6 +13,10 @@ namespace TimHanewich.TelemetryFeed.Analysis
         private TimeSpan BufferGuidelines;
         private List<TelemetrySnapshot> LastReceivedTelemetrySnapshots;
 
+        //Earliest received and latest received (for total time)
+        private TelemetrySnapshot OldestReceived;
+        private TelemetrySnapshot YoungestReceived;
+
         //for stops
         private TelemetrySnapshot StationaryFirstNoticed;
         private RiderStatus _Status;
@@ -32,6 +36,30 @@ namespace TimHanewich.TelemetryFeed.Analysis
         {
             //Add it to the buffer
             AddSnapshotToBuffer(ts);
+
+            //First seen? Last seen?
+            if (OldestReceived != null)
+            {
+                if (ts.CapturedAtUtc < OldestReceived.CapturedAtUtc)
+                {
+                    OldestReceived = ts;
+                }
+            }
+            else
+            {
+                OldestReceived = ts;
+            }
+            if (YoungestReceived != null)
+            {
+                if (ts.CapturedAtUtc > YoungestReceived.CapturedAtUtc)
+                {
+                    YoungestReceived = ts;
+                }
+            }
+            else
+            {
+                YoungestReceived = ts;
+            }
 
             //Check for top speed
             float speed = CurrentSpeedMph;
@@ -66,6 +94,8 @@ namespace TimHanewich.TelemetryFeed.Analysis
                     {
                         ss.Longitude = StationaryFirstNoticed.Longitude.Value;
                     }
+                    ss.BeganAtUtc = StationaryFirstNoticed.CapturedAtUtc;
+                    ss.EndedAtUtc = ts.CapturedAtUtc;
                     _Stops.Add(ss);
                     
                     //Flip and clear
@@ -203,6 +233,46 @@ namespace TimHanewich.TelemetryFeed.Analysis
             get
             {
                 return _TopSpeedDetectedAt;
+            }
+        }
+    
+        public TimeSpan TotalTime
+        {
+            get
+            {
+                if (OldestReceived != null && YoungestReceived != null)
+                {
+                    TimeSpan ts = YoungestReceived.CapturedAtUtc - OldestReceived.CapturedAtUtc;
+                    return ts;
+                }
+                else
+                {
+                    return new TimeSpan(0, 0, 0);
+                }
+            }
+        }
+    
+        public TimeSpan TotalTimeStationary
+        {
+            get
+            {
+                TimeSpan ToAddTo = new TimeSpan(0, 0, 0);
+                foreach (StationaryStop ss in Stops)
+                {
+                    TimeSpan StopDuration = ss.Duration();
+                    ToAddTo = ToAddTo + StopDuration;
+                }
+                return ToAddTo;
+            }
+        }
+
+        public TimeSpan TotalTimeMoving
+        {
+            get
+            {
+                TimeSpan tt = TotalTime;
+                TimeSpan ts = TotalTimeStationary;
+                return tt - ts;
             }
         }
     }

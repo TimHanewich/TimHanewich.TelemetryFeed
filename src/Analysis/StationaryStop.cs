@@ -12,6 +12,10 @@ namespace TimHanewich.TelemetryFeed.Analysis
         public float Latitude {get; set;}
         public float Longitude {get; set;}
 
+        //Time start and stop
+        public DateTime BeganAtUtc {get; set;}
+        public DateTime EndedAtUtc {get; set;}
+
         public TimeSpan Duration(TelemetrySnapshot[] all_packets)
         {
             TelemetrySnapshot b = null;
@@ -33,6 +37,11 @@ namespace TimHanewich.TelemetryFeed.Analysis
             }
             TimeSpan ToReturn = e.CapturedAtUtc - b.CapturedAtUtc;
             return ToReturn;
+        }
+    
+        public TimeSpan Duration()
+        {
+            return EndedAtUtc - BeganAtUtc;
         }
     }
 }
