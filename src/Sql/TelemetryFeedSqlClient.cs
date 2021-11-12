@@ -373,7 +373,7 @@ namespace TimHanewich.TelemetryFeed.Sql
             //Orientaiton
             try
             {
-                ToReturn.OrientationX = dr.GetFloat(prefix + "OrientationX");
+                ToReturn.OrientationX = dr.GetFloat(dr.GetOrdinal(prefix + "OrientationX"));
             }
             catch
             {
@@ -381,7 +381,7 @@ namespace TimHanewich.TelemetryFeed.Sql
             }
             try
             {
-                ToReturn.OrientationY = dr.GetFloat(prefix + "OrientationY");
+                ToReturn.OrientationY = dr.GetFloat(dr.GetOrdinal(prefix + "OrientationY"));
             }
             catch
             {
@@ -389,7 +389,7 @@ namespace TimHanewich.TelemetryFeed.Sql
             }
             try
             {
-                ToReturn.OrientationZ = dr.GetFloat(prefix + "OrientationZ");
+                ToReturn.OrientationZ = dr.GetFloat(dr.GetOrdinal(prefix + "OrientationZ"));
             }
             catch
             {
@@ -399,7 +399,7 @@ namespace TimHanewich.TelemetryFeed.Sql
             //GPS Accuracy
             try
             {
-                ToReturn.GpsAccuracy = dr.GetFloat(prefix + "GpsAccuracy");
+                ToReturn.GpsAccuracy = dr.GetFloat(dr.GetOrdinal(prefix + "GpsAccuracy"));
             }
             catch
             {
