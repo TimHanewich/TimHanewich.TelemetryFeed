@@ -28,6 +28,7 @@ namespace testing
             ts.Latitude = Convert.ToSingle(r.NextDouble());
             ts.Longitude = Convert.ToSingle(r.NextDouble());
             ts.GpsAccuracy = Convert.ToSingle(r.NextDouble() * 100);
+            ts.SpeedMetersPerSecond = Convert.ToSingle(r.NextDouble() * 100);
             return ts;
         }
     }
