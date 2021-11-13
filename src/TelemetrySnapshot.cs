@@ -99,7 +99,7 @@ namespace TimHanewich.TelemetryFeed
 
         public static TelemetrySnapshot[] ArrayFromBytes(byte[] bytes)
         {
-            int SingleTelemetrySnapshotLength = 100; //The length (in bytes) of a single telemetry snapshot
+            int SingleTelemetrySnapshotLength = TelemetrySnapshot.ByteLength; //The length (in bytes) of a single telemetry snapshot
             float NumberOfSnapshotsF = Convert.ToSingle(bytes.Length) / Convert.ToSingle(SingleTelemetrySnapshotLength);
 
             //Get number of snapshots
