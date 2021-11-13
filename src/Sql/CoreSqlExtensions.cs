@@ -139,6 +139,12 @@ namespace TimHanewich.TelemetryFeed.Sql
                 }
             }
 
+            //SpeedMetersPerSecond
+            if (ts.SpeedMetersPerSecond.HasValue)
+            {
+                ih.Add("SpeedMetersPerSecond", ts.SpeedMetersPerSecond.Value.ToString());
+            }
+
 
             return ih.ToString();
         }
