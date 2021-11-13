@@ -145,86 +145,81 @@ namespace TimHanewich.TelemetryFeed.Analysis
         {
             get
             {
-                List<float> MphCalculations = new List<float>();
-                if (LastReceivedTelemetrySnapshots != null)
+                //Return 0 if there was no buffer
+                if (LastReceivedTelemetrySnapshots == null)
                 {
-
-                    //Get a collection of those in the most recent snapshots that we can actually use
-                    List<TelemetrySnapshot> CanUse = new List<TelemetrySnapshot>();
-                    foreach (TelemetrySnapshot ts in LastReceivedTelemetrySnapshots)
+                    return 0f;
+                }
+                else
+                {
+                    if (LastReceivedTelemetrySnapshots.Count == 0)
                     {
-                        if (ts.Latitude.HasValue && ts.Longitude.HasValue)
-                        {
-                            if (ts.GpsAccuracy.HasValue)
-                            {
-                                if (ts.GpsAccuracy.Value < 20)
-                                {
-                                    CanUse.Add(ts);
-                                }
-                            }
-                        }
+                        return 0f;
                     }
-
-                    //Sort the can use from oldest to newest
-                    TelemetrySnapshot[] CanUseSorted = TelemetrySnapshot.OldestToNewest(CanUse.ToArray());
-
-
-                    //Go through each and calculate MPH's
-                    if (CanUseSorted.Length > 0)
+                    else if (LastReceivedTelemetrySnapshots.Count == 1)
                     {
-                        TelemetrySnapshot MostRecent = CanUseSorted[CanUseSorted.Length - 1];
-                        foreach (TelemetrySnapshot ts in CanUseSorted)
-                        {
-                            if (ts != MostRecent)
-                            {
-                                TimeSpan TimeDifference = MostRecent.CapturedAtUtc - ts.CapturedAtUtc;
-                                if (TimeDifference.Milliseconds > 250)
-                                {
-                                    Geolocation loc1 = new Geolocation();
-                                    loc1.Latitude = ts.Latitude.Value;
-                                    loc1.Longitude = ts.Longitude.Value;
-                                    Geolocation loc2 = new Geolocation();
-                                    loc2.Latitude = MostRecent.Latitude.Value;
-                                    loc2.Longitude = MostRecent.Longitude.Value;
+                        return 0f;
+                    }
+                }
 
-                                    Distance d = GeoToolkit.MeasureDistance(loc1, loc2);
-                                    if (d.Miles > 0)
-                                    {
-                                        float mph = d.Miles / Convert.ToSingle(TimeDifference.TotalHours);
-                                        MphCalculations.Add(mph);
-                                    }
-                                }
+                //Get a list we can use
+                List<TelemetrySnapshot> CanUse = new List<TelemetrySnapshot>();
+                foreach (TelemetrySnapshot ts in LastReceivedTelemetrySnapshots)
+                {
+                    if (ts.Latitude.HasValue && ts.Longitude.HasValue)
+                    {
+                        if (ts.GpsAccuracy.HasValue)
+                        {
+                            if (ts.GpsAccuracy.Value < 20)
+                            {
+                                CanUse.Add(ts);
                             }
                         }
                     }
                 }
 
-                //If there were no MPH's to calculate, return 0 (standing still)
-                if (MphCalculations.Count == 0)
+
+                //If the # of can use is insufficient, return 0
+                if (CanUse.Count < 2) //we need multiple
                 {
                     return 0f;
                 }
 
+                //Arrange them
+                TelemetrySnapshot[] CanUseSorted = TelemetrySnapshot.OldestToNewest(CanUse.ToArray());
 
-                //Do a standard deviation analysis to throw out the biggest outliers 
-                float stdev = TimHanewich.Toolkit.MathToolkit.StandardDeviation(MphCalculations.ToArray());
-                List<float> ToConsiderForMphAvgCalc = new List<float>();
-                foreach (float val in MphCalculations)
+                //Calc
+                TelemetrySnapshot MostRecent = CanUseSorted[CanUseSorted.Length - 1];
+                List<float> CalculatedSpeeds = new List<float>();
+                foreach (TelemetrySnapshot ts in CanUseSorted)
                 {
-                    float zScore = Math.Abs(val - MphCalculations.Average()) / stdev;
-                    if (zScore < 1.5)
+                    if (ts != MostRecent)
                     {
-                        ToConsiderForMphAvgCalc.Add(val);
+                        TimeSpan TimeBetween = MostRecent.CapturedAtUtc - ts.CapturedAtUtc;
+                        if (TimeBetween.TotalMilliseconds > 250)
+                        {
+                            Geolocation loc1 = new Geolocation();
+                            loc1.Latitude = ts.Latitude.Value;
+                            loc1.Longitude = ts.Longitude.Value;
+                            Geolocation loc2 = new Geolocation();
+                            loc2.Latitude = MostRecent.Latitude.Value;
+                            loc2.Longitude = MostRecent.Longitude.Value;
+                            Distance d = GeoToolkit.MeasureDistance(loc1, loc2);
+                            float mph = d.Miles / Convert.ToSingle(TimeBetween.TotalHours);
+                            CalculatedSpeeds.Add(mph);
+                        }
                     }
                 }
 
-                //If there were none left after throwing out the outliers, return 0
-                if (ToConsiderForMphAvgCalc.Count == 0)
+                //return 0 (should be NaN?) if unable to calculate speeds
+                //This would only happen in the event where the gaps in between were all too small to consider it a valid measurement
+                if (CalculatedSpeeds.Count == 0)
                 {
-                    return 0;
+                    return 0f;
                 }
-                    
-                return ToConsiderForMphAvgCalc.Average();
+
+                //Return the average
+                return CalculatedSpeeds.Average();
             }
         }
 
