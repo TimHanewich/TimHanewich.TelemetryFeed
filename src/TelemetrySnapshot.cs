@@ -68,6 +68,7 @@ namespace TimHanewich.TelemetryFeed
             ToReturn.AddRange(NullableFloatToBytes(Latitude));
             ToReturn.AddRange(NullableFloatToBytes(Longitude));
             ToReturn.AddRange(NullableFloatToBytes(GpsAccuracy));
+            ToReturn.AddRange(NullableFloatToBytes(SpeedMetersPerSecond));
             return ToReturn.ToArray();
         }
 
@@ -94,6 +95,7 @@ namespace TimHanewich.TelemetryFeed
             ToReturn.Latitude = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
             ToReturn.Longitude = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
             ToReturn.GpsAccuracy = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
+            ToReturn.SpeedMetersPerSecond = ToReturn.BytesToNullableFloat(BAM.NextBytes(4));
 
             return ToReturn;
         }
