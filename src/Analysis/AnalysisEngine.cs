@@ -165,30 +165,31 @@ namespace TimHanewich.TelemetryFeed.Analysis
                         }
                     }
 
+                    //Sort the can use from oldest to newest
+                    TelemetrySnapshot[] CanUseSorted = TelemetrySnapshot.OldestToNewest(CanUse.ToArray());
+
 
                     //Go through each
-                    foreach (TelemetrySnapshot ts in CanUse)
+                    TelemetrySnapshot MostRecent = CanUseSorted[CanUseSorted.Length - 1];
+                    foreach (TelemetrySnapshot ts in CanUseSorted)
                     {
-                        foreach (TelemetrySnapshot ToCompareTo in CanUse)
+                        if (ts != MostRecent)
                         {
-                            if (ToCompareTo != ts)
+                            TimeSpan TimeDifference = MostRecent.CapturedAtUtc - ts.CapturedAtUtc;
+                            if (TimeDifference.Milliseconds > 250)
                             {
-                                TimeSpan TimeDifference = ts.CapturedAtUtc - ToCompareTo.CapturedAtUtc;
-                                if (TimeDifference.Milliseconds > 250)
-                                {
-                                    Geolocation loc1 = new Geolocation();
-                                    loc1.Latitude = ts.Latitude.Value;
-                                    loc1.Longitude = ts.Longitude.Value;
-                                    Geolocation loc2 = new Geolocation();
-                                    loc2.Latitude = ToCompareTo.Latitude.Value;
-                                    loc2.Longitude = ToCompareTo.Longitude.Value;
+                                Geolocation loc1 = new Geolocation();
+                                loc1.Latitude = ts.Latitude.Value;
+                                loc1.Longitude = ts.Longitude.Value;
+                                Geolocation loc2 = new Geolocation();
+                                loc2.Latitude = MostRecent.Latitude.Value;
+                                loc2.Longitude = MostRecent.Longitude.Value;
 
-                                    Distance d = GeoToolkit.MeasureDistance(loc1, loc2);
-                                    if (d.Miles > 0)
-                                    {
-                                        float mph = d.Miles / Convert.ToSingle(TimeDifference.TotalHours);
-                                        MphCalculations.Add(mph);
-                                    }
+                                Distance d = GeoToolkit.MeasureDistance(loc1, loc2);
+                                if (d.Miles > 0)
+                                {
+                                    float mph = d.Miles / Convert.ToSingle(TimeDifference.TotalHours);
+                                    MphCalculations.Add(mph);
                                 }
                             }
                         }
