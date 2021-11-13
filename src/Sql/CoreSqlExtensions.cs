@@ -178,7 +178,7 @@ namespace TimHanewich.TelemetryFeed.Sql
         //Arranged from newest to oldest
         public static string DownloadTelemetrySnapshots(Guid from_session, int top = 1)
         {
-            string cmd = "select top " + top.ToString() + " Id, FromSession, CapturedAtUtc, AccelerationX, AccelerationY, AccelerationZ, GyroscopeX, GyroscopeY, GyroscopeZ, MagnetoX, MagnetoY, MagnetoZ, Latitude, Longitude, GpsAccuracy, OrientationX, OrientationY, OrientationZ from TelemetrySnapshot where FromSession = '" + from_session.ToString() + "' order by CapturedAtUtc desc";
+            string cmd = "select top " + top.ToString() + " Id, FromSession, CapturedAtUtc, AccelerationX, AccelerationY, AccelerationZ, GyroscopeX, GyroscopeY, GyroscopeZ, MagnetoX, MagnetoY, MagnetoZ, Latitude, Longitude, GpsAccuracy, OrientationX, OrientationY, OrientationZ, SpeedMetersPerSecond from TelemetrySnapshot where FromSession = '" + from_session.ToString() + "' order by CapturedAtUtc desc";
             return cmd;
         }
     }
