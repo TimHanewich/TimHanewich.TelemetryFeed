@@ -35,6 +35,15 @@ namespace TimHanewich.TelemetryFeed
         public float? Longitude {get; set;} //4 bytes
         public float? GpsAccuracy {get; set;} //4 bytes
 
+        public static int ByteLength
+        {
+            get
+            {
+                TelemetrySnapshot demo = new TelemetrySnapshot();
+                return demo.ToBytes().Length;
+            }
+        }
+
         public byte[] ToBytes()
         {
             List<byte> ToReturn = new List<byte>();
@@ -114,7 +123,6 @@ namespace TimHanewich.TelemetryFeed
 
             return ToReturn.ToArray();
         }
-
 
         private byte[] NullableFloatToBytes(float? value)
         {
