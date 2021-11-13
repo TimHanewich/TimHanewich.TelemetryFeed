@@ -221,6 +221,24 @@ namespace TimHanewich.TelemetryFeed.Analysis
                     return 0f;
                 }
 
+                //Trim out any anomolies
+                float StDev = TimHanewich.Toolkit.MathToolkit.StandardDeviation(CalculatedSpeeds.ToArray());
+                List<float> ToConsiderCalculatedSpeeds = new List<float>();
+                foreach (float f in CalculatedSpeeds)
+                {
+                    float zScore = Math.Abs(f - CalculatedSpeeds.Average()) / StDev;
+                    if (zScore < 1.25)
+                    {
+                        ToConsiderCalculatedSpeeds.Add(f);
+                    }
+                }
+                if (ToConsiderCalculatedSpeeds.Count == 0) //Return 0 if there are none after trimming out the anomoloies (should never happen)
+                {
+                    return 0f;
+                }
+                CalculatedSpeeds = ToConsiderCalculatedSpeeds;
+
+
                 //Return the average
                 return CalculatedSpeeds.Average();
             }
