@@ -34,6 +34,7 @@ namespace TimHanewich.TelemetryFeed
         public float? Latitude {get; set;} //4 bytes
         public float? Longitude {get; set;} //4 bytes
         public float? GpsAccuracy {get; set;} //4 bytes
+        public float? SpeedMetersPerSecond {get; set;} //4 bytes
 
         #region "Byte Parsing"
 
