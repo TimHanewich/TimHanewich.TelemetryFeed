@@ -205,8 +205,11 @@ namespace TimHanewich.TelemetryFeed.Analysis
                             loc2.Latitude = MostRecent.Latitude.Value;
                             loc2.Longitude = MostRecent.Longitude.Value;
                             Distance d = GeoToolkit.MeasureDistance(loc1, loc2);
-                            float mph = d.Miles / Convert.ToSingle(TimeBetween.TotalHours);
-                            CalculatedSpeeds.Add(mph);
+                            if (d.Miles > 0)
+                            {
+                                float mph = d.Miles / Convert.ToSingle(TimeBetween.TotalHours);
+                                CalculatedSpeeds.Add(mph);
+                            }
                         }
                     }
                 }
