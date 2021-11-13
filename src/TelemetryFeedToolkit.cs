@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TimHanewich.Toolkit;
 using TimHanewich.Csv;
+using TimHanewich.Toolkit.Geo;
 
 namespace TimHanewich.TelemetryFeed
 {
@@ -19,7 +20,7 @@ namespace TimHanewich.TelemetryFeed
             return ToReturn.ToArray();
         }
 
-        public static string ToCsv(this TelemetrySnapshot[] snapshots, bool IncludeRowNumber = false, bool CapturedAtInSeconds = false)
+        public static string ToCsv(this TelemetrySnapshot[] snapshots, bool IncludeRowNumber = false, bool CapturedAtInSeconds = false, bool IncludeDistance = false)
         {
             CsvFile csv = new CsvFile();
             
@@ -47,6 +48,10 @@ namespace TimHanewich.TelemetryFeed
             header.Values.Add("OrientationY");
             header.Values.Add("OrientationZ");
             header.Values.Add("GpsAccuracy");
+            if (IncludeDistance)
+            {
+                header.Values.Add("DistanceMiles");
+            }
 
             //Get the oldest
             DateTime OldestUtc = DateTime.UtcNow;
@@ -214,6 +219,34 @@ namespace TimHanewich.TelemetryFeed
                 else
                 {
                     dr.Values.Add("");
+                }
+
+                //Include distance?
+                if (IncludeDistance)
+                {
+                    if (rn == 1) //If it is the first row, just show 0
+                    {
+                        dr.Values.Add("");
+                    }
+                    else
+                    {
+                        TelemetrySnapshot last = snapshots[rn - 2];
+                        if (last.Latitude.HasValue && last.Longitude.HasValue && ts.Latitude.HasValue && ts.Longitude.HasValue)
+                        {
+                            Geolocation loc1 = new Geolocation();
+                            loc1.Latitude = last.Latitude.Value;
+                            loc1.Longitude = last.Longitude.Value;
+                            Geolocation loc2 = new Geolocation();
+                            loc2.Latitude = ts.Latitude.Value;
+                            loc2.Longitude = ts.Longitude.Value;
+                            Distance d = GeoToolkit.MeasureDistance(loc1, loc2);
+                            dr.Values.Add(d.Miles.ToString());
+                        }
+                        else
+                        {
+                            dr.Values.Add("");
+                        }
+                    }
                 }
 
                 //INCREMENTE ROW #
