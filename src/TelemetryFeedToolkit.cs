@@ -215,6 +215,9 @@ namespace TimHanewich.TelemetryFeed
                 {
                     dr.Values.Add("");
                 }
+
+                //INCREMENTE ROW #
+                rn = rn + 1;
             }
 
 
