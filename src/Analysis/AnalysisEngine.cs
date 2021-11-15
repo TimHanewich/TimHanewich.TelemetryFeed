@@ -55,7 +55,15 @@ namespace TimHanewich.TelemetryFeed.Analysis
             if (CurrentSpeedMph.HasValue)
             {
                 float speed = CurrentSpeedMph.Value;
-                if (speed > _TopSpeedMph)
+                if (_TopSpeedMph.HasValue)
+                {
+                    if (speed > _TopSpeedMph.Value)
+                    {
+                        _TopSpeedMph = speed;
+                        _TopSpeedDetectedAt = ts.Id;
+                    }
+                }
+                else
                 {
                     _TopSpeedMph = speed;
                     _TopSpeedDetectedAt = ts.Id;
