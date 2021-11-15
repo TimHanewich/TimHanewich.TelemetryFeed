@@ -10,8 +10,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
     public class AnalysisEngine
     {
         //LAST RECEIVED 
-        private TimeSpan BufferGuidelines;
-        private List<TelemetrySnapshot> LastReceivedTelemetrySnapshots;
+        private TelemetrySnapshot LastReceivedTelemetrySnapshot;
 
         //Earliest received and latest received (for total time)
         private TelemetrySnapshot OldestReceived;
@@ -23,20 +22,11 @@ namespace TimHanewich.TelemetryFeed.Analysis
         private List<StationaryStop> _Stops = new List<StationaryStop>();
 
         //Top speed
-        private float _TopSpeedMph;
-        private Guid _TopSpeedDetectedAt; //Guid of telemetry snapshot where the top speed was detected
-
-        public AnalysisEngine()
-        {
-            LastReceivedTelemetrySnapshots = new List<TelemetrySnapshot>();
-            BufferGuidelines = new TimeSpan(0, 0, 7);
-        }
+        private float? _TopSpeedMph;
+        private Guid? _TopSpeedDetectedAt; //Guid of telemetry snapshot where the top speed was detected
 
         public void Feed(TelemetrySnapshot ts)
         {
-            //Add it to the buffer
-            AddSnapshotToBuffer(ts);
-
             //First seen? Last seen?
             if (OldestReceived != null)
             {
@@ -62,185 +52,69 @@ namespace TimHanewich.TelemetryFeed.Analysis
             }
 
             //Check for top speed
-            float speed = CurrentSpeedMph;
-            if (speed > _TopSpeedMph)
+            if (CurrentSpeedMph.HasValue)
             {
-                _TopSpeedMph = speed;
-                _TopSpeedDetectedAt = ts.Id;
+                float speed = CurrentSpeedMph.Value;
+                if (speed > _TopSpeedMph)
+                {
+                    _TopSpeedMph = speed;
+                    _TopSpeedDetectedAt = ts.Id;
+                }
             }
+            
 
             //Check for stop
-            if (speed < 2) //SPEEDS BELOW THIS INDICATE a 'stop'
+            if (CurrentSpeedMph.HasValue)
             {
-                if (_Status == RiderStatus.Moving)
+                if (CurrentSpeedMph< 2) //SPEEDS BELOW THIS INDICATE a 'stop'
                 {
-                    _Status = RiderStatus.Stationary; //Mark as stationary
-                    StationaryFirstNoticed = ts; //Mark the first time we are seeing it is stationary. 
+                    if (_Status == RiderStatus.Moving)
+                    {
+                        _Status = RiderStatus.Stationary; //Mark as stationary
+                        StationaryFirstNoticed = ts; //Mark the first time we are seeing it is stationary. 
+                    }
+                }
+                else //We are over the minimum speed and are now moving
+                {
+                    if (_Status == RiderStatus.Stationary) //If it was previously marked as stationary
+                    {
+                        TimeSpan TimeSinceStationaryBegan = ts.CapturedAtUtc - StationaryFirstNoticed.CapturedAtUtc;
+                        StationaryStop ss = new StationaryStop();
+                        ss.Beginning = StationaryFirstNoticed.Id;
+                        ss.End = ts.Id;
+                        if (StationaryFirstNoticed.Latitude.HasValue)
+                        {
+                            ss.Latitude = StationaryFirstNoticed.Latitude.Value;
+                        }
+                        if (StationaryFirstNoticed.Longitude.HasValue)
+                        {
+                            ss.Longitude = StationaryFirstNoticed.Longitude.Value;
+                        }
+                        ss.BeganAtUtc = StationaryFirstNoticed.CapturedAtUtc;
+                        ss.EndedAtUtc = ts.CapturedAtUtc;
+                        _Stops.Add(ss);
+                        
+                        //Flip and clear
+                        _Status = RiderStatus.Moving;
+                        StationaryFirstNoticed = null;
+                    }
                 }
             }
-            else //We are over the minimum speed and are now moving
-            {
-                if (_Status == RiderStatus.Stationary) //If it was previously marked as stationary
-                {
-                    TimeSpan TimeSinceStationaryBegan = ts.CapturedAtUtc - StationaryFirstNoticed.CapturedAtUtc;
-                    StationaryStop ss = new StationaryStop();
-                    ss.Beginning = StationaryFirstNoticed.Id;
-                    ss.End = ts.Id;
-                    if (StationaryFirstNoticed.Latitude.HasValue)
-                    {
-                        ss.Latitude = StationaryFirstNoticed.Latitude.Value;
-                    }
-                    if (StationaryFirstNoticed.Longitude.HasValue)
-                    {
-                        ss.Longitude = StationaryFirstNoticed.Longitude.Value;
-                    }
-                    ss.BeganAtUtc = StationaryFirstNoticed.CapturedAtUtc;
-                    ss.EndedAtUtc = ts.CapturedAtUtc;
-                    _Stops.Add(ss);
-                    
-                    //Flip and clear
-                    _Status = RiderStatus.Moving;
-                    StationaryFirstNoticed = null;
-                }
-            }
+            
         }
 
-        private void AddSnapshotToBuffer(TelemetrySnapshot ts)
-        {
-            if (LastReceivedTelemetrySnapshots == null)
-            {
-                LastReceivedTelemetrySnapshots = new List<TelemetrySnapshot>();
-            }
-            LastReceivedTelemetrySnapshots.Add(ts);
-
-            //Find the most recent one
-            TelemetrySnapshot most_recent = LastReceivedTelemetrySnapshots[0];
-            foreach (TelemetrySnapshot snap in LastReceivedTelemetrySnapshots)
-            {
-                if (snap.CapturedAtUtc > most_recent.CapturedAtUtc)
-                {
-                    most_recent = snap;
-                }
-            }
-
-            //Take out any that need to go
-            List<TelemetrySnapshot> ToRemove = new List<TelemetrySnapshot>();
-            foreach (TelemetrySnapshot snap in LastReceivedTelemetrySnapshots)
-            {
-                TimeSpan time_since = most_recent.CapturedAtUtc - snap.CapturedAtUtc;
-                if (time_since > BufferGuidelines)
-                {
-                    ToRemove.Add(snap);
-                }
-            }
-
-            //Take them out
-            foreach (TelemetrySnapshot snapshot in ToRemove)
-            {
-                LastReceivedTelemetrySnapshots.Remove(snapshot);
-            }
-        }
-
-        public float CurrentSpeedMph
+        public float? CurrentSpeedMph
         {
             get
             {
-                //Return 0 if there was no buffer
-                if (LastReceivedTelemetrySnapshots == null)
+                if (LastReceivedTelemetrySnapshot.SpeedMetersPerSecond.HasValue)
                 {
-                    return 0f;
+                    return LastReceivedTelemetrySnapshot.SpeedMetersPerSecond.Value * 2.23694f;
                 }
                 else
                 {
-                    if (LastReceivedTelemetrySnapshots.Count == 0)
-                    {
-                        return 0f;
-                    }
-                    else if (LastReceivedTelemetrySnapshots.Count == 1)
-                    {
-                        return 0f;
-                    }
+                    return null;
                 }
-
-                //Get a list we can use
-                List<TelemetrySnapshot> CanUse = new List<TelemetrySnapshot>();
-                foreach (TelemetrySnapshot ts in LastReceivedTelemetrySnapshots)
-                {
-                    if (ts.Latitude.HasValue && ts.Longitude.HasValue)
-                    {
-                        if (ts.GpsAccuracy.HasValue)
-                        {
-                            if (ts.GpsAccuracy.Value < 20)
-                            {
-                                CanUse.Add(ts);
-                            }
-                        }
-                    }
-                }
-
-
-                //If the # of can use is insufficient, return 0
-                if (CanUse.Count < 2) //we need multiple
-                {
-                    return 0f;
-                }
-
-                //Arrange them
-                TelemetrySnapshot[] CanUseSorted = TelemetrySnapshot.OldestToNewest(CanUse.ToArray());
-
-                //Calc
-                TelemetrySnapshot MostRecent = CanUseSorted[CanUseSorted.Length - 1];
-                List<float> CalculatedSpeeds = new List<float>();
-                foreach (TelemetrySnapshot ts in CanUseSorted)
-                {
-                    if (ts != MostRecent)
-                    {
-                        TimeSpan TimeBetween = MostRecent.CapturedAtUtc - ts.CapturedAtUtc;
-                        if (TimeBetween.TotalMilliseconds > 250)
-                        {
-                            Geolocation loc1 = new Geolocation();
-                            loc1.Latitude = ts.Latitude.Value;
-                            loc1.Longitude = ts.Longitude.Value;
-                            Geolocation loc2 = new Geolocation();
-                            loc2.Latitude = MostRecent.Latitude.Value;
-                            loc2.Longitude = MostRecent.Longitude.Value;
-                            Distance d = GeoToolkit.MeasureDistance(loc1, loc2);
-                            if (d.Miles > 0)
-                            {
-                                float mph = d.Miles / Convert.ToSingle(TimeBetween.TotalHours);
-                                CalculatedSpeeds.Add(mph);
-                            }
-                        }
-                    }
-                }
-
-                //return 0 (should be NaN?) if unable to calculate speeds
-                //This would only happen in the event where the gaps in between were all too small to consider it a valid measurement
-                if (CalculatedSpeeds.Count == 0)
-                {
-                    return 0f;
-                }
-
-                //Trim out any anomolies
-                float StDev = TimHanewich.Toolkit.MathToolkit.StandardDeviation(CalculatedSpeeds.ToArray());
-                List<float> ToConsiderCalculatedSpeeds = new List<float>();
-                foreach (float f in CalculatedSpeeds)
-                {
-                    float zScore = Math.Abs(f - CalculatedSpeeds.Average()) / StDev;
-                    if (zScore < 1.25)
-                    {
-                        ToConsiderCalculatedSpeeds.Add(f);
-                    }
-                }
-                if (ToConsiderCalculatedSpeeds.Count == 0) //Return 0 if there are none after trimming out the anomoloies (should never happen)
-                {
-                    return 0f;
-                }
-                CalculatedSpeeds = ToConsiderCalculatedSpeeds;
-
-
-                //Return the average
-                return CalculatedSpeeds.Average();
             }
         }
 
@@ -252,7 +126,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
             }
         }
     
-        public float TopSpeedMph
+        public float? TopSpeedMph
         {
             get
             {
@@ -260,7 +134,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
             }
         }
 
-        public Guid TopSpeedDetectedAt
+        public Guid? TopSpeedDetectedAt
         {
             get
             {
