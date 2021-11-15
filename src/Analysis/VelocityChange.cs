@@ -41,5 +41,16 @@ namespace TimHanewich.TelemetryFeed.Analysis
                 }
             }
         }
+
+        //The average change in velocity in meters per second per second
+        public float AverageVelocityChangeMPS2 
+        {
+            get
+            {
+                float SpeedDiff = EndingSpeedMetersPerSecond - BeginningSpeedMetersPerSecond;
+                float ToReturn = SpeedDiff / Convert.ToSingle(Duration.TotalSeconds);
+                return ToReturn;
+            }
+        }
     }
 }
