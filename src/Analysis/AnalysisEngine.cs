@@ -111,14 +111,14 @@ namespace TimHanewich.TelemetryFeed.Analysis
         {
             get
             {
-                if (LastReceivedTelemetrySnapshot.SpeedMetersPerSecond.HasValue)
+                if (LastReceivedTelemetrySnapshot != null)
                 {
-                    return LastReceivedTelemetrySnapshot.SpeedMetersPerSecond.Value * 2.23694f;
+                    if (LastReceivedTelemetrySnapshot.SpeedMetersPerSecond.HasValue)
+                    {
+                        return LastReceivedTelemetrySnapshot.SpeedMetersPerSecond.Value * 2.23694f;
+                    }
                 }
-                else
-                {
-                    return null;
-                }
+                return null; //return null if the above didn't work.
             }
         }
 
