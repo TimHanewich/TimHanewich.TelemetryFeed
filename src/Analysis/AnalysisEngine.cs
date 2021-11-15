@@ -29,6 +29,8 @@ namespace TimHanewich.TelemetryFeed.Analysis
         private List<TelemetrySnapshot> BufferForAcceleration;
         private float? _AccelerationMetersPerSecond;
         private AccelerationStatus _AccelerationStatus;
+        private List<VelocityChange> _VelocityChanges;
+        private VelocityChange CurrentVelocityChange;
 
         public void Feed(TelemetrySnapshot ts)
         {
@@ -174,23 +176,76 @@ namespace TimHanewich.TelemetryFeed.Analysis
 
             #region "Acceleration Status"
 
+            //Make the list if it isn't there
+            if (_VelocityChanges == null)
+            {
+                _VelocityChanges = new List<VelocityChange>();
+            }
+
             if (AccelerationMetersPerSecond.HasValue)
             {
                 //Accelerating = MPS > 0.4
                 //Holding speed = -0.4 to 0.4
                 //Decelerating = MPS < -0.4
 
-                if (AccelerationMetersPerSecond.Value >= 0.4)
+                if (_AccelerationStatus == AccelerationStatus.MaintainingSpeed)
                 {
-                    _AccelerationStatus = AccelerationStatus.Accelerating;
+                    if (AccelerationMetersPerSecond.Value >= 0.4)
+                    {
+                        //Create a new one
+                        VelocityChange vc = new VelocityChange();
+                        vc.BeginningSnapshot = ts.Id;
+                        vc.BeginningSpeedMetersPerSecond = ts.SpeedMetersPerSecond.Value;
+                        vc.BeginningUtc = ts.CapturedAtUtc;
+                        CurrentVelocityChange = vc;
+
+                        //Mark the status
+                        _AccelerationStatus = AccelerationStatus.Accelerating;
+                    }
+                    else if (AccelerationMetersPerSecond.Value <= 0.4)
+                    {
+                        //Create a new one
+                        VelocityChange vc = new VelocityChange();
+                        vc.BeginningSnapshot = ts.Id;
+                        vc.BeginningSpeedMetersPerSecond = ts.SpeedMetersPerSecond.Value;
+                        vc.BeginningUtc = ts.CapturedAtUtc;
+                        CurrentVelocityChange = vc;
+
+                        //Mark the status
+                        _AccelerationStatus = AccelerationStatus.Decelerating;
+                    }
                 }
-                else if (AccelerationMetersPerSecond.Value <= -0.4)
+                else if (_AccelerationStatus == AccelerationStatus.Accelerating)
                 {
-                    _AccelerationStatus = AccelerationStatus.Decelerating;
+                    //Check if the acceleration is over
+                    if (AccelerationMetersPerSecond.Value < 0.4)
+                    {
+                        if (CurrentVelocityChange != null)
+                        {
+                            CurrentVelocityChange.EndingSnapshot = ts.Id;
+                            CurrentVelocityChange.EndingSpeedMetersPerSecond = ts.SpeedMetersPerSecond.Value;
+                            CurrentVelocityChange.EndingUtc = ts.CapturedAtUtc;
+                            _VelocityChanges.Add(CurrentVelocityChange);
+                            CurrentVelocityChange = null;
+                        }
+                        _AccelerationStatus = AccelerationStatus.MaintainingSpeed;
+                    }
                 }
-                else
+                else if (_AccelerationStatus == AccelerationStatus.Decelerating)
                 {
-                    _AccelerationStatus = AccelerationStatus.MaintainingSpeed;
+                    //Check if the deceleration is over
+                    if (AccelerationMetersPerSecond.Value > -0.4)
+                    {
+                        if (CurrentVelocityChange != null)
+                        {
+                            CurrentVelocityChange.EndingSnapshot = ts.Id;
+                            CurrentVelocityChange.EndingSpeedMetersPerSecond = ts.SpeedMetersPerSecond.Value;
+                            CurrentVelocityChange.EndingUtc = ts.CapturedAtUtc;
+                            _VelocityChanges.Add(CurrentVelocityChange);
+                            CurrentVelocityChange = null;
+                        }
+                        _AccelerationStatus = AccelerationStatus.MaintainingSpeed;
+                    }
                 }
             }
 
