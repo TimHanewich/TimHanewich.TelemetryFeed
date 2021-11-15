@@ -66,7 +66,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
             //Check for stop
             if (CurrentSpeedMph.HasValue)
             {
-                if (CurrentSpeedMph< 2) //SPEEDS BELOW THIS INDICATE a 'stop'
+                if (CurrentSpeedMph.Value < 2) //SPEEDS BELOW THIS INDICATE a 'stop'
                 {
                     if (_Status == RiderStatus.Moving)
                     {
