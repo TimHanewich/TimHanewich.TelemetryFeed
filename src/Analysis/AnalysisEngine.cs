@@ -142,7 +142,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
             for (int i = 0; i < BufferForAcceleration.Count - 1; i++)
             {
                 TelemetrySnapshot snap1 = BufferForAcceleration[i];
-                TelemetrySnapshot snap2 = BufferForAcceleration[i];
+                TelemetrySnapshot snap2 = BufferForAcceleration[i + 1];
                 if (snap1.SpeedMetersPerSecond.HasValue && snap2.SpeedMetersPerSecond.HasValue)
                 {
                     float SpeedDiff = snap2.SpeedMetersPerSecond.Value - snap1.SpeedMetersPerSecond.Value;
