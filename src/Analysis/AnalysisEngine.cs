@@ -131,7 +131,8 @@ namespace TimHanewich.TelemetryFeed.Analysis
             BufferForAcceleration = TelemetrySnapshot.OldestToNewest(BufferForAcceleration.ToArray()).ToList();
 
             //Remove the oldest until we get to only 10
-            while (BufferForAcceleration.Count > 10)
+            int OptimalBuffer = 10; //Number of snapshots that is used to calculate
+            while (BufferForAcceleration.Count > OptimalBuffer)
             {
                 BufferForAcceleration.RemoveAt(0);
             }
@@ -139,18 +140,22 @@ namespace TimHanewich.TelemetryFeed.Analysis
 
             //Get the average change
             List<float> Changes = new List<float>();
-            for (int i = 0; i < BufferForAcceleration.Count - 1; i++)
+            if (BufferForAcceleration.Count >= OptimalBuffer)
             {
-                TelemetrySnapshot snap1 = BufferForAcceleration[i];
-                TelemetrySnapshot snap2 = BufferForAcceleration[i + 1];
-                if (snap1.SpeedMetersPerSecond.HasValue && snap2.SpeedMetersPerSecond.HasValue)
+                for (int i = 0; i < BufferForAcceleration.Count - 1; i++)
                 {
-                    float SpeedDiff = snap2.SpeedMetersPerSecond.Value - snap1.SpeedMetersPerSecond.Value;
-                    TimeSpan span = snap2.CapturedAtUtc - snap1.CapturedAtUtc;
-                    float SpeedDiffTimes = SpeedDiff / Convert.ToSingle(span.TotalSeconds);
-                    Changes.Add(SpeedDiffTimes);
+                    TelemetrySnapshot snap1 = BufferForAcceleration[i];
+                    TelemetrySnapshot snap2 = BufferForAcceleration[i + 1];
+                    if (snap1.SpeedMetersPerSecond.HasValue && snap2.SpeedMetersPerSecond.HasValue)
+                    {
+                        float SpeedDiff = snap2.SpeedMetersPerSecond.Value - snap1.SpeedMetersPerSecond.Value;
+                        TimeSpan span = snap2.CapturedAtUtc - snap1.CapturedAtUtc;
+                        float SpeedDiffTimes = SpeedDiff / Convert.ToSingle(span.TotalSeconds);
+                        Changes.Add(SpeedDiffTimes);
+                    }
                 }
             }
+            
 
 
             //Return
