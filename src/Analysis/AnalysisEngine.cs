@@ -176,6 +176,14 @@ namespace TimHanewich.TelemetryFeed.Analysis
 
             #region "Acceleration Status"
 
+            //ACCELERATION/DECELERATION SETTINGS
+            float MAccelerating = 0.5f;
+            //Holding speed = between -0.4 and 0.4
+            float MDecelerating = -0.5f;
+            TimeSpan MinimumVelocityChangeDuration = TimeSpan.FromSeconds(1); //If a change in velocity lasted less than this duration, it will not be registered as a velocity change
+            float MinimumMetersPerSecondChange = 5f; //If a change is velocity in total is less than this swing (up or down) in speed, it will not be registered as a velocity change
+
+
             //Make the list if it isn't there
             if (_VelocityChanges == null)
             {
@@ -184,11 +192,6 @@ namespace TimHanewich.TelemetryFeed.Analysis
 
             if (AccelerationMetersPerSecond.HasValue)
             {
-
-                float MAccelerating = 0.5f;
-                //Holding speed = between -0.4 and 0.4
-                float MDecelerating = -0.5f;
-
                 if (_AccelerationStatus == AccelerationStatus.MaintainingSpeed)
                 {
                     if (AccelerationMetersPerSecond.Value >= MAccelerating || AccelerationMetersPerSecond.Value <= MDecelerating)
@@ -236,9 +239,8 @@ namespace TimHanewich.TelemetryFeed.Analysis
                     {
                         
                         //Only actually book the change if the duration of this acceleration or deceleration is over a certain amount
-                        TimeSpan MinimumVelocityChange = TimeSpan.FromSeconds(1);
                         TimeSpan DurationOfThisPossibleVelocityChange = ts.CapturedAtUtc - CurrentVelocityChange.BeginningUtc;
-                        if (DurationOfThisPossibleVelocityChange >= MinimumVelocityChange)
+                        if (DurationOfThisPossibleVelocityChange >= MinimumVelocityChangeDuration)
                         {
                             
                             //Also only book the change if the ending speed is not the same as the beginning speed (this would NOT be a velocity change)
@@ -246,7 +248,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
                             {
 
                                 //Also only book the change if the difference in speeds is more than a certain amount
-                                if (Math.Abs(ts.SpeedMetersPerSecond.Value - CurrentVelocityChange.BeginningSpeedMetersPerSecond) > 5)
+                                if (Math.Abs(ts.SpeedMetersPerSecond.Value - CurrentVelocityChange.BeginningSpeedMetersPerSecond) >= MinimumMetersPerSecondChange)
                                 {
                                     //Book the change
                                     CurrentVelocityChange.EndingSnapshot = ts.Id;
