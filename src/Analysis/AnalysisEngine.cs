@@ -25,12 +25,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
         private float? _TopSpeedMph;
         private Guid? _TopSpeedDetectedAt; //Guid of telemetry snapshot where the top speed was detected
 
-        //Acceleration change
-        private List<TelemetrySnapshot> BufferForAcceleration;
-        private float? _AccelerationMetersPerSecond;
-        private AccelerationStatus _AccelerationStatus;
-        private List<VelocityChange> _VelocityChanges;
-        private VelocityChange CurrentVelocityChange;
+        
 
         public void Feed(TelemetrySnapshot ts)
         {
@@ -320,6 +315,19 @@ namespace TimHanewich.TelemetryFeed.Analysis
             }
         }
     
+
+        #region "Acceleration/velocity changing"
+
+        //Acceleration change
+        public event AccelerationStatusHandler AccelerationStatusChanged;
+        public event VelocityChangeHandler VelocityChangeRecorded;
+        private List<TelemetrySnapshot> BufferForAcceleration;
+        private float? _AccelerationMetersPerSecond;
+        private AccelerationStatus _AccelerationStatus;
+        private List<VelocityChange> _VelocityChanges;
+        private VelocityChange CurrentVelocityChange;
+
+
         public AccelerationStatus AccelerationStatus
         {
             get
@@ -342,6 +350,32 @@ namespace TimHanewich.TelemetryFeed.Analysis
                 }
             }
         }
+
+        private void TryRaiseAccelerationStatusChanged(AccelerationStatus status)
+        {
+            try
+            {
+                AccelerationStatusChanged.Invoke(status);
+            }
+            catch
+            {
+
+            }
+        }
+
+        private void TryRaiseVelocityChangeRecorded(VelocityChange vc)
+        {
+            try
+            {
+                VelocityChangeRecorded.Invoke(vc);
+            }
+            catch
+            {
+
+            }
+        }
+
+        #endregion
 
         #region "Riding timing statistics"
 
