@@ -100,6 +100,10 @@ namespace TimHanewich.TelemetryFeed.Analysis
                     }
                 }
             }
+
+
+            //SET LAST RECEIVED!
+            LastReceivedTelemetrySnapshot = ts;
             
         }
 
