@@ -172,6 +172,29 @@ namespace TimHanewich.TelemetryFeed.Analysis
 
             #endregion
 
+            #region "Acceleration Status"
+
+            if (AccelerationMetersPerSecond.HasValue)
+            {
+                //Accelerating = MPS > 0.4
+                //Holding speed = -0.4 to 0.4
+                //Decelerating = MPS < -0.4
+
+                if (AccelerationMetersPerSecond.Value >= 0.4)
+                {
+                    _AccelerationStatus = AccelerationStatus.Accelerating;
+                }
+                else if (AccelerationMetersPerSecond.Value <= -0.4)
+                {
+                    _AccelerationStatus = AccelerationStatus.Decelerating;
+                }
+                else
+                {
+                    _AccelerationStatus = AccelerationStatus.MaintainingSpeed;
+                }
+            }
+
+            #endregion
 
 
             //SET LAST RECEIVED!
