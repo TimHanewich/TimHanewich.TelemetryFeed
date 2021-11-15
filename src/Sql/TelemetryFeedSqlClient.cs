@@ -406,6 +406,16 @@ namespace TimHanewich.TelemetryFeed.Sql
 
             }
 
+            //Speed meters per second
+            try
+            {
+                ToReturn.SpeedMetersPerSecond = dr.GetFloat(dr.GetOrdinal(prefix = "SpeedMetersPerSecond"));
+            }
+            catch
+            {
+
+            }
+
             return ToReturn;
         }
 
