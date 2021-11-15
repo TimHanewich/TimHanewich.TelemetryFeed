@@ -25,6 +25,10 @@ namespace TimHanewich.TelemetryFeed.Analysis
         private float? _TopSpeedMph;
         private Guid? _TopSpeedDetectedAt; //Guid of telemetry snapshot where the top speed was detected
 
+        //Acceleration change
+        private List<TelemetrySnapshot> BufferForAcceleration;
+        private float? _AccelerationMetersPerSecond;
+
         public void Feed(TelemetrySnapshot ts)
         {
             //First seen? Last seen?
@@ -108,6 +112,60 @@ namespace TimHanewich.TelemetryFeed.Analysis
                     }
                 }
             }
+
+
+            #region "Acceleration"
+
+
+            //If it is null, make one
+            if (BufferForAcceleration == null)
+            {
+                BufferForAcceleration = new List<TelemetrySnapshot>();
+            }
+
+
+            //Add it
+            BufferForAcceleration.Add(ts);
+
+            //Arrange
+            BufferForAcceleration = TelemetrySnapshot.OldestToNewest(BufferForAcceleration.ToArray()).ToList();
+
+            //Remove the oldest until we get to only 10
+            while (BufferForAcceleration.Count > 10)
+            {
+                BufferForAcceleration.RemoveAt(0);
+            }
+
+
+            //Get the average change
+            List<float> Changes = new List<float>();
+            for (int i = 0; i < BufferForAcceleration.Count - 1; i++)
+            {
+                TelemetrySnapshot snap1 = BufferForAcceleration[i];
+                TelemetrySnapshot snap2 = BufferForAcceleration[i];
+                if (snap1.SpeedMetersPerSecond.HasValue && snap2.SpeedMetersPerSecond.HasValue)
+                {
+                    float SpeedDiff = snap2.SpeedMetersPerSecond.Value - snap1.SpeedMetersPerSecond.Value;
+                    TimeSpan span = snap2.CapturedAtUtc - snap1.CapturedAtUtc;
+                    float SpeedDiffTimes = SpeedDiff / Convert.ToSingle(span.TotalSeconds);
+                    Changes.Add(SpeedDiffTimes);
+                }
+            }
+
+
+            //Return
+            if (Changes.Count > 0)
+            {
+                _AccelerationMetersPerSecond = Changes.Average();
+            }  
+            else
+            {
+                _AccelerationMetersPerSecond = null;
+            }
+
+
+            #endregion
+
 
 
             //SET LAST RECEIVED!
