@@ -250,8 +250,14 @@ namespace TimHanewich.TelemetryFeed.Analysis
                                     CurrentVelocityChange.EndingSnapshot = ts.Id;
                                     CurrentVelocityChange.EndingSpeedMetersPerSecond = ts.SpeedMetersPerSecond.Value;
                                     CurrentVelocityChange.EndingUtc = ts.CapturedAtUtc;
+                                    
+                                    //Raise the event (well, try to)
+                                    TryRaiseVelocityChangeRecorded(CurrentVelocityChange);
+
+                                    //Add it to the list and move on (prepare for the next one)
                                     _VelocityChanges.Add(CurrentVelocityChange);
                                     CurrentVelocityChange = null;
+                                    
 
                                     //Mark the status
                                     _AccelerationStatus = AccelerationStatus.MaintainingSpeed;
