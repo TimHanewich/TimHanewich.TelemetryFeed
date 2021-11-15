@@ -28,6 +28,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
         //Acceleration change
         private List<TelemetrySnapshot> BufferForAcceleration;
         private float? _AccelerationMetersPerSecond;
+        private AccelerationStatus _AccelerationStatus;
 
         public void Feed(TelemetrySnapshot ts)
         {
@@ -225,6 +226,14 @@ namespace TimHanewich.TelemetryFeed.Analysis
             }
         }
     
+        public AccelerationStatus AccelerationStatus
+        {
+            get
+            {
+                return _AccelerationStatus;
+            }
+        }
+
         #region "Riding timing statistics"
 
         public TimeSpan TotalTime
