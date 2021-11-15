@@ -12,7 +12,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
         public Guid BeginningSnapshot {get; set;}
         public DateTime EndingUtc {get; set;}
         public Guid EndingSnapshot {get; set;}
-
-        public float VelocityChangeMetersPerSecond {get; set;}
+        public float BeginningSpeedMetersPerSecond {get; set;}
+        public float EndingSpeedMetersPerSecond {get; set;}
     }
 }
