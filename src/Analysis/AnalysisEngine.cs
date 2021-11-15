@@ -312,6 +312,21 @@ namespace TimHanewich.TelemetryFeed.Analysis
             }
         }
 
+        public VelocityChange[] VelocityChanges
+        {
+            get
+            {
+                if (_VelocityChanges == null)
+                {
+                    return new VelocityChange[]{};
+                }
+                else
+                {
+                    return _VelocityChanges.ToArray();
+                }
+            }
+        }
+
         #region "Riding timing statistics"
 
         public TimeSpan TotalTime
