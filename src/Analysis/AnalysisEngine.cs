@@ -188,6 +188,14 @@ namespace TimHanewich.TelemetryFeed.Analysis
             }
         }
 
+        public float? AccelerationMetersPerSecond
+        {
+            get
+            {
+                return _AccelerationMetersPerSecond;
+            }
+        }
+
         public StationaryStop[] Stops
         {
             get
