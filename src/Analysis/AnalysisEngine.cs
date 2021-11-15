@@ -184,68 +184,83 @@ namespace TimHanewich.TelemetryFeed.Analysis
 
             if (AccelerationMetersPerSecond.HasValue)
             {
-                //Accelerating = MPS > 0.4
-                //Holding speed = -0.4 to 0.4
-                //Decelerating = MPS < -0.4
+
+                float MAccelerating = 0.5f;
+                //Holding speed = between -0.4 and 0.4
+                float MDecelerating = -0.5f;
 
                 if (_AccelerationStatus == AccelerationStatus.MaintainingSpeed)
                 {
-                    if (AccelerationMetersPerSecond.Value >= 0.4)
+                    if (AccelerationMetersPerSecond.Value >= MAccelerating || AccelerationMetersPerSecond.Value <= MDecelerating)
                     {
-                        //Create a new one
-                        VelocityChange vc = new VelocityChange();
-                        vc.BeginningSnapshot = ts.Id;
-                        vc.BeginningSpeedMetersPerSecond = ts.SpeedMetersPerSecond.Value;
-                        vc.BeginningUtc = ts.CapturedAtUtc;
-                        CurrentVelocityChange = vc;
+                        //Start a new velocity change
+                        CurrentVelocityChange = new VelocityChange();
+                        CurrentVelocityChange.BeginningSnapshot = ts.Id;
+                        CurrentVelocityChange.BeginningSpeedMetersPerSecond = ts.SpeedMetersPerSecond.Value;
+                        CurrentVelocityChange.BeginningUtc = ts.CapturedAtUtc;
 
                         //Mark the status
-                        _AccelerationStatus = AccelerationStatus.Accelerating;
+                        if (AccelerationMetersPerSecond.Value >= MAccelerating)
+                        {
+                            _AccelerationStatus = AccelerationStatus.Accelerating;
+                        }
+                        else if (AccelerationMetersPerSecond.Value <= MDecelerating)
+                        {
+                            _AccelerationStatus = AccelerationStatus.Decelerating;
+                        }
                     }
-                    else if (AccelerationMetersPerSecond.Value <= 0.4)
-                    {
-                        //Create a new one
-                        VelocityChange vc = new VelocityChange();
-                        vc.BeginningSnapshot = ts.Id;
-                        vc.BeginningSpeedMetersPerSecond = ts.SpeedMetersPerSecond.Value;
-                        vc.BeginningUtc = ts.CapturedAtUtc;
-                        CurrentVelocityChange = vc;
+                }
+                else //Current status is accelerating or decelerating
+                {
 
-                        //Mark the status
-                        _AccelerationStatus = AccelerationStatus.Decelerating;
-                    }
-                }
-                else if (_AccelerationStatus == AccelerationStatus.Accelerating)
-                {
-                    //Check if the acceleration is over
-                    if (AccelerationMetersPerSecond.Value < 0.4)
+                    //Is this acceleration or decelerartion over?
+                    bool VelocityChangeIsOver = false;
+                    if (_AccelerationStatus == AccelerationStatus.Accelerating)
                     {
-                        if (CurrentVelocityChange != null)
+                        if (AccelerationMetersPerSecond.Value < MAccelerating)
                         {
-                            CurrentVelocityChange.EndingSnapshot = ts.Id;
-                            CurrentVelocityChange.EndingSpeedMetersPerSecond = ts.SpeedMetersPerSecond.Value;
-                            CurrentVelocityChange.EndingUtc = ts.CapturedAtUtc;
-                            _VelocityChanges.Add(CurrentVelocityChange);
-                            CurrentVelocityChange = null;
+                            VelocityChangeIsOver = true;
                         }
-                        _AccelerationStatus = AccelerationStatus.MaintainingSpeed;
                     }
-                }
-                else if (_AccelerationStatus == AccelerationStatus.Decelerating)
-                {
-                    //Check if the deceleration is over
-                    if (AccelerationMetersPerSecond.Value > -0.4)
+                    else if (_AccelerationStatus == AccelerationStatus.Decelerating)
                     {
-                        if (CurrentVelocityChange != null)
+                        if (AccelerationMetersPerSecond.Value > MDecelerating)
                         {
-                            CurrentVelocityChange.EndingSnapshot = ts.Id;
-                            CurrentVelocityChange.EndingSpeedMetersPerSecond = ts.SpeedMetersPerSecond.Value;
-                            CurrentVelocityChange.EndingUtc = ts.CapturedAtUtc;
-                            _VelocityChanges.Add(CurrentVelocityChange);
-                            CurrentVelocityChange = null;
+                            VelocityChangeIsOver = true;
                         }
-                        _AccelerationStatus = AccelerationStatus.MaintainingSpeed;
                     }
+
+
+                    //If this velocity change is over, end it.
+                    if (VelocityChangeIsOver)
+                    {
+                        
+                        //Only actually book the change if the duration of this acceleration or deceleration is over a certain amount
+                        TimeSpan MinimumVelocityChange = TimeSpan.FromSeconds(1);
+                        TimeSpan DurationOfThisPossibleVelocityChange = ts.CapturedAtUtc - CurrentVelocityChange.BeginningUtc;
+                        if (DurationOfThisPossibleVelocityChange >= MinimumVelocityChange)
+                        {
+                            
+                            //Also only book the change if the ending speed is not the same as the beginning speed (this would NOT be a velocity change)
+                            if (ts.SpeedMetersPerSecond.Value != CurrentVelocityChange.BeginningSpeedMetersPerSecond)
+                            {
+
+                                //Also only book the change if the difference in speeds is more than a certain amount
+                                if (Math.Abs(ts.SpeedMetersPerSecond.Value - CurrentVelocityChange.BeginningSpeedMetersPerSecond) > 5)
+                                {
+                                    //Book the change
+                                    CurrentVelocityChange.EndingSnapshot = ts.Id;
+                                    CurrentVelocityChange.EndingSpeedMetersPerSecond = ts.SpeedMetersPerSecond.Value;
+                                    CurrentVelocityChange.EndingUtc = ts.CapturedAtUtc;
+                                    _VelocityChanges.Add(CurrentVelocityChange);
+                                    CurrentVelocityChange = null;
+
+                                    //Mark the status
+                                    _AccelerationStatus = AccelerationStatus.MaintainingSpeed;
+                                }
+                            }   
+                        }  
+                    } 
                 }
             }
 
