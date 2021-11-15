@@ -177,9 +177,8 @@ namespace TimHanewich.TelemetryFeed.Analysis
             #region "Acceleration Status"
 
             //ACCELERATION/DECELERATION SETTINGS
-            float MAccelerating = 0.5f;
-            //Holding speed = between -0.4 and 0.4
-            float MDecelerating = -0.5f;
+            float MAccelerating = 0.5f; //Change in velocity (in meters per second) equal to or greater than this is considered "accelerating"
+            float MDecelerating = -0.5f; //Change in velocity (in meters per second) equal to or less than this is considered "decelerating"
             TimeSpan MinimumVelocityChangeDuration = TimeSpan.FromSeconds(1); //If a change in velocity lasted less than this duration, it will not be registered as a velocity change
             float MinimumMetersPerSecondChange = 5f; //If a change is velocity in total is less than this swing (up or down) in speed, it will not be registered as a velocity change
 
