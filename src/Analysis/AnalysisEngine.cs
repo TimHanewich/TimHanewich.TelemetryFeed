@@ -200,10 +200,12 @@ namespace TimHanewich.TelemetryFeed.Analysis
                         if (AccelerationMetersPerSecond.Value >= MAccelerating)
                         {
                             _AccelerationStatus = AccelerationStatus.Accelerating;
+                            TryRaiseAccelerationStatusChanged(_AccelerationStatus);
                         }
                         else if (AccelerationMetersPerSecond.Value <= MDecelerating)
                         {
                             _AccelerationStatus = AccelerationStatus.Decelerating;
+                            TryRaiseAccelerationStatusChanged(_AccelerationStatus);
                         }
                     }
                 }
@@ -253,6 +255,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
 
                                     //Mark the status
                                     _AccelerationStatus = AccelerationStatus.MaintainingSpeed;
+                                    TryRaiseAccelerationStatusChanged(_AccelerationStatus);
                                 }
                             }   
                         }  
