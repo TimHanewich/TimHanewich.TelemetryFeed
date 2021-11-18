@@ -6,4 +6,5 @@ namespace TimHanewich.TelemetryFeed
     public delegate void AccelerationStatusHandler(AccelerationStatus status);
     public delegate void VelocityChangeHandler(VelocityChange vc);
     public delegate void TelemetrySnapshotHandler(TelemetrySnapshot ts);
+    public delegate void RiderStatusHandler(RiderStatus rs);
 }

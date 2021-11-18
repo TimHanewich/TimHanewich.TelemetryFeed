@@ -20,6 +20,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
         private TelemetrySnapshot StationaryFirstNoticed;
         private RiderStatus _Status;
         private List<StationaryStop> _Stops = new List<StationaryStop>();
+        public event RiderStatusHandler RiderStatusChanged;
 
         //Top speed
         public event TelemetrySnapshotHandler NewTopSpeedReached;
@@ -93,6 +94,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
                     {
                         _Status = RiderStatus.Stationary; //Mark as stationary
                         StationaryFirstNoticed = ts; //Mark the first time we are seeing it is stationary. 
+                        TryRaiseRiderStatusChanged(_Status); //try to raise the event (if subscribed to)
                     }
                 }
                 else //We are over the minimum speed and are now moving
@@ -122,6 +124,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
                         //Flip and clear
                         _Status = RiderStatus.Moving;
                         StationaryFirstNoticed = null;
+                        TryRaiseRiderStatusChanged(_Status); //try to raise the event (if subscribed to)
                     }
                 }
             }
@@ -465,5 +468,21 @@ namespace TimHanewich.TelemetryFeed.Analysis
 
         #endregion
     
+        #region "Toolkit"
+
+        private void TryRaiseRiderStatusChanged(RiderStatus rs)
+        {
+            try
+            {
+                RiderStatusChanged.Invoke(rs);
+            }
+            catch
+            {
+                
+            }
+        }
+
+        #endregion
+
     }
 }
