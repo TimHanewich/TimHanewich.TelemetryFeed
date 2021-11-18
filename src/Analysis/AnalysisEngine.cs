@@ -22,6 +22,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
         private List<StationaryStop> _Stops = new List<StationaryStop>();
 
         //Top speed
+        public event TelemetrySnapshotHandler NewTopSpeedReached;
         private float? _TopSpeedMph;
         private Guid? _TopSpeedDetectedAt; //Guid of telemetry snapshot where the top speed was detected
 
@@ -63,6 +64,16 @@ namespace TimHanewich.TelemetryFeed.Analysis
                     {
                         _TopSpeedMph = speed;
                         _TopSpeedDetectedAt = ts.Id;
+
+                        //Raise the event
+                        try
+                        {
+                            NewTopSpeedReached.Invoke(ts);
+                        }
+                        catch
+                        {
+
+                        }
                     }
                 }
                 else
