@@ -55,6 +55,32 @@ namespace TimHanewich.TelemetryFeed.Analysis
         }
     
     
+        public float BeginingSpeedMilesPerHour
+        {
+            get
+            {
+                return BeginningSpeedMetersPerSecond * 2.23694f;
+            }
+        }
+
+        public float EndingSpeedMilesPerHour
+        {
+            get
+            {
+                return EndingSpeedMetersPerSecond * 2.23694f;
+            }
+        }
+
+        //Velocity change in miles per hour per second
+        public float AverageVelocityChangeMPHPS
+        {
+            get
+            {
+                return AverageVelocityChangeMPS2 * 2.23694f;
+            }
+        }
+
+
         #region "Toolkit"
 
         //Sorts from highest velocity to lowest velocity change
