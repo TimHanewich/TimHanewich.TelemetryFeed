@@ -295,6 +295,14 @@ namespace TimHanewich.TelemetryFeed.Analysis
             
         }
 
+        public RiderStatus Status
+        {
+            get
+            {
+                return _Status;
+            }
+        }
+
         public float? CurrentSpeedMph
         {
             get
