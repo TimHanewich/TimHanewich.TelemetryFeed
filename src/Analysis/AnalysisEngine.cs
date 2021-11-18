@@ -411,7 +411,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
                 TimeSpan ToAddTo = new TimeSpan(0, 0, 0);
                 foreach (StationaryStop ss in Stops)
                 {
-                    TimeSpan StopDuration = ss.Duration();
+                    TimeSpan StopDuration = ss.Duration;
                     ToAddTo = ToAddTo + StopDuration;
                 }
                 return ToAddTo;
