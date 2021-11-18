@@ -147,7 +147,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
             BufferForAcceleration = TelemetrySnapshot.OldestToNewest(BufferForAcceleration.ToArray()).ToList();
 
             //Remove the oldest until we get to only 10
-            int OptimalBuffer = 10; //Number of snapshots that is used to calculate
+            int OptimalBuffer = 6; //Number of snapshots that is used to calculate
             while (BufferForAcceleration.Count > OptimalBuffer)
             {
                 BufferForAcceleration.RemoveAt(0);
