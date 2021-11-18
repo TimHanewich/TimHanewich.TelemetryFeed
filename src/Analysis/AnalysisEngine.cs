@@ -102,7 +102,11 @@ namespace TimHanewich.TelemetryFeed.Analysis
                         }
                         ss.BeganAtUtc = StationaryFirstNoticed.CapturedAtUtc;
                         ss.EndedAtUtc = ts.CapturedAtUtc;
-                        _Stops.Add(ss);
+                        if (ss.Duration.TotalSeconds >= 2)
+                        {
+                            _Stops.Add(ss);
+                        }
+                        
                         
                         //Flip and clear
                         _Status = RiderStatus.Moving;
