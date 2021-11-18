@@ -15,33 +15,13 @@ namespace TimHanewich.TelemetryFeed.Analysis
         //Time start and stop
         public DateTime BeganAtUtc {get; set;}
         public DateTime EndedAtUtc {get; set;}
-
-        public TimeSpan Duration(TelemetrySnapshot[] all_packets)
-        {
-            TelemetrySnapshot b = null;
-            TelemetrySnapshot e = null;
-            foreach (TelemetrySnapshot ts in all_packets)
-            {
-                if (ts.Id == Beginning)
-                {
-                    b = ts;
-                }
-                else if (ts.Id == End)
-                {
-                    e = ts;
-                }
-            }
-            if (b == null || e == null)
-            {
-                throw new Exception("Unable to complete duration measurement. Unable to find both beginning and end snapshot in provided array.");
-            }
-            TimeSpan ToReturn = e.CapturedAtUtc - b.CapturedAtUtc;
-            return ToReturn;
-        }
     
-        public TimeSpan Duration()
+        public TimeSpan Duration
         {
-            return EndedAtUtc - BeganAtUtc;
+            get
+            {
+                return EndedAtUtc - BeganAtUtc;
+            }
         }
     }
 }
