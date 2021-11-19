@@ -8,6 +8,9 @@ namespace TimHanewich.TelemetryFeed.SessionPackaging
 {
     public class SessionPackage
     {
+        //Package serializer version number
+        public const int Version = 1;
+
         public Session Session {get; set;}
         public TelemetrySnapshot LeftLeanCalibration {get; set;}
         public TelemetrySnapshot RightLeanCalibration {get; set;}
@@ -17,6 +20,14 @@ namespace TimHanewich.TelemetryFeed.SessionPackaging
         {
             MemoryStream ToReturn = new MemoryStream();
             ZipArchive za = new ZipArchive(ToReturn, ZipArchiveMode.Create, true);
+
+            //drop the version number
+            ZipArchiveEntry VersionZAE = za.CreateEntry("version.txt");
+            Stream twt_Version = VersionZAE.Open();
+            StreamWriter sw_Version = new StreamWriter(twt_Version);
+            sw_Version.Write(Version.ToString());
+            sw_Version.Dispose();
+            twt_Version.Dispose();
 
             //Create the session stream (JSON)
             ZipArchiveEntry SessionZAE = za.CreateEntry("Session.json");
