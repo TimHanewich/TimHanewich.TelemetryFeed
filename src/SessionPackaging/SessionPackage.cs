@@ -79,6 +79,28 @@ namespace TimHanewich.TelemetryFeed.SessionPackaging
         {
             SessionPackage ToReturn = new SessionPackage();
             ZipArchive za = new ZipArchive(ms, ZipArchiveMode.Read);
+            
+            //Check the version
+            ZipArchiveEntry VersionZAE = za.GetEntry("version.txt");
+            if (VersionZAE == null)
+            {
+                throw new Exception("Version number not found in package.");
+            }
+            StreamReader srv = new StreamReader(VersionZAE.Open());
+            string content = srv.ReadToEnd();
+            int PackageVersionNo = 0;
+            try
+            {
+                PackageVersionNo = Convert.ToInt32(content);
+            }
+            catch
+            {
+                throw new Exception("Did not recognize version '" + content + "' as a valid version number.");
+            }
+            if (PackageVersionNo != Version)
+            {
+                throw new Exception("Package is an old version type. Package version: " + PackageVersionNo.ToString() + ". Current version: " + Version.ToString());
+            }
 
             //Get the session
             ZipArchiveEntry SessionZAE = za.GetEntry("Session.json");
