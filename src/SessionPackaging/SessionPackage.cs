@@ -19,7 +19,7 @@ namespace TimHanewich.TelemetryFeed.SessionPackaging
             ZipArchive za = new ZipArchive(ToReturn, ZipArchiveMode.Create, true);
 
             //Create the session stream (JSON)
-            ZipArchiveEntry SessionZAE = za.CreateEntry("Session");
+            ZipArchiveEntry SessionZAE = za.CreateEntry("Session.json");
             Stream twt_Session = SessionZAE.Open();
             StreamWriter sw = new StreamWriter(twt_Session);
             sw.Write(JsonConvert.SerializeObject(Session));
@@ -57,5 +57,58 @@ namespace TimHanewich.TelemetryFeed.SessionPackaging
             ToReturn.Position = 0;
             return ToReturn.ToArray();
         }
+    
+        public static SessionPackage Unpack(byte[] bytes)
+        {
+            MemoryStream ms = new MemoryStream(bytes);
+            return Unpack(ms);
+        }    
+
+        public static SessionPackage Unpack(MemoryStream ms)
+        {
+            SessionPackage ToReturn = new SessionPackage();
+            ZipArchive za = new ZipArchive(ms, ZipArchiveMode.Read);
+
+            //Get the session
+            ZipArchiveEntry SessionZAE = za.GetEntry("Session.json");
+            Stream SessionStream = SessionZAE.Open();
+            StreamReader sr = new StreamReader(SessionStream);
+            string SessionJson = sr.ReadToEnd();
+            ToReturn.Session = JsonConvert.DeserializeObject<Session>(SessionJson);
+
+            //Get left lean
+            ZipArchiveEntry LeftLeanZAE = za.GetEntry("LeftLeanCalibration");
+            Stream LeftLeanStream = LeftLeanZAE.Open();
+            MemoryStream ms_LeftLean = new MemoryStream();
+            LeftLeanStream.CopyTo(ms_LeftLean);
+            ms_LeftLean.Position = 0;
+            byte[] LLBytes = ms_LeftLean.ToArray();
+            TelemetrySnapshot ts_LeftLean = TelemetrySnapshot.FromBytes(LLBytes);
+            ToReturn.LeftLeanCalibration = ts_LeftLean;
+
+            //Get right lean
+            ZipArchiveEntry RightLeanZAE = za.GetEntry("RightLeanCalibration");
+            Stream RightLeanStream = RightLeanZAE.Open();
+            MemoryStream ms_RightLean = new MemoryStream();
+            RightLeanStream.CopyTo(ms_RightLean);
+            ms_RightLean.Position = 0;
+            byte[] RLBytes = ms_RightLean.ToArray();
+            TelemetrySnapshot ts_RightLean = TelemetrySnapshot.FromBytes(RLBytes);
+            ToReturn.RightLeanCalibration = ts_RightLean;
+
+            //Get the telemetry snapshots
+            ZipArchiveEntry TelemetrySnapshotsZAE = za.GetEntry("TelemetrySnapshots");
+            Stream TelemetrySnapshotsStream = TelemetrySnapshotsZAE.Open();
+            MemoryStream ms_TelemetrySnapshots = new MemoryStream();
+            TelemetrySnapshotsStream.CopyTo(ms_TelemetrySnapshots);
+            ms_TelemetrySnapshots.Position = 0;
+            byte[] TSBytes = ms_TelemetrySnapshots.ToArray();
+            TelemetrySnapshot[] snapshots = TelemetrySnapshot.ArrayFromBytes(TSBytes);
+            ToReturn.TelemetrySnapshots = snapshots;
+
+            return ToReturn;
+
+        }
+
     }
 }
