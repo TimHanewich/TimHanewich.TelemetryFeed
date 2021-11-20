@@ -177,11 +177,11 @@ namespace TimHanewich.TelemetryFeed.Analysis
             //Return
             if (Changes.Count > 0)
             {
-                _AccelerationMetersPerSecond = Changes.Average();
+                _AccelerationMPS2 = Changes.Average();
             }  
             else
             {
-                _AccelerationMetersPerSecond = null;
+                _AccelerationMPS2 = null;
             }
 
 
@@ -202,11 +202,11 @@ namespace TimHanewich.TelemetryFeed.Analysis
                 _VelocityChanges = new List<VelocityChange>();
             }
 
-            if (AccelerationMetersPerSecond.HasValue)
+            if (AccelerationMPS2.HasValue)
             {
                 if (_AccelerationStatus == AccelerationStatus.MaintainingSpeed)
                 {
-                    if (AccelerationMetersPerSecond.Value >= MAccelerating || AccelerationMetersPerSecond.Value <= MDecelerating)
+                    if (AccelerationMPS2.Value >= MAccelerating || AccelerationMPS2.Value <= MDecelerating)
                     {
                         //Start a new velocity change
                         CurrentVelocityChange = new VelocityChange();
@@ -215,12 +215,12 @@ namespace TimHanewich.TelemetryFeed.Analysis
                         CurrentVelocityChange.BeginningUtc = ts.CapturedAtUtc;
 
                         //Mark the status
-                        if (AccelerationMetersPerSecond.Value >= MAccelerating)
+                        if (AccelerationMPS2.Value >= MAccelerating)
                         {
                             _AccelerationStatus = AccelerationStatus.Accelerating;
                             TryRaiseAccelerationStatusChanged(_AccelerationStatus);
                         }
-                        else if (AccelerationMetersPerSecond.Value <= MDecelerating)
+                        else if (AccelerationMPS2.Value <= MDecelerating)
                         {
                             _AccelerationStatus = AccelerationStatus.Decelerating;
                             TryRaiseAccelerationStatusChanged(_AccelerationStatus);
@@ -234,14 +234,14 @@ namespace TimHanewich.TelemetryFeed.Analysis
                     bool VelocityChangeIsOver = false;
                     if (_AccelerationStatus == AccelerationStatus.Accelerating)
                     {
-                        if (AccelerationMetersPerSecond.Value < MAccelerating)
+                        if (AccelerationMPS2.Value < MAccelerating)
                         {
                             VelocityChangeIsOver = true;
                         }
                     }
                     else if (_AccelerationStatus == AccelerationStatus.Decelerating)
                     {
-                        if (AccelerationMetersPerSecond.Value > MDecelerating)
+                        if (AccelerationMPS2.Value > MDecelerating)
                         {
                             VelocityChangeIsOver = true;
                         }
@@ -318,11 +318,11 @@ namespace TimHanewich.TelemetryFeed.Analysis
             }
         }
 
-        public float? AccelerationMetersPerSecond
+        public float? AccelerationMPS2
         {
             get
             {
-                return _AccelerationMetersPerSecond;
+                return _AccelerationMPS2;
             }
         }
 
@@ -357,7 +357,7 @@ namespace TimHanewich.TelemetryFeed.Analysis
         public event AccelerationStatusHandler AccelerationStatusChanged;
         public event VelocityChangeHandler VelocityChangeRecorded;
         private List<TelemetrySnapshot> BufferForAcceleration;
-        private float? _AccelerationMetersPerSecond;
+        private float? _AccelerationMPS2;
         private AccelerationStatus _AccelerationStatus;
         private List<VelocityChange> _VelocityChanges;
         private VelocityChange CurrentVelocityChange;
