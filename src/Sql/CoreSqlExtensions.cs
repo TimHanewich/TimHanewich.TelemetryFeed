@@ -184,7 +184,7 @@ namespace TimHanewich.TelemetryFeed.Sql
 
         public static string DownloadTelemetrySnapshot(Guid id)
         {
-            string cmd = "select Id, FromSession, CapturedAtUtc, AccelerationX, AccelerationY, AccelerationZ, GyroscopeX, GyroscopeY, GyroscopeZ, MagnetoX, MagnetoY, MagnetoZ, Latitude, Longitude, GpsAccuracy, OrientationX, OrientationY, OrientationZ, SpeedMetersPerSecond from TelemetrySnapshot where Id = '" + id.ToString();
+            string cmd = "select Id, FromSession, CapturedAtUtc, AccelerationX, AccelerationY, AccelerationZ, GyroscopeX, GyroscopeY, GyroscopeZ, MagnetoX, MagnetoY, MagnetoZ, Latitude, Longitude, GpsAccuracy, OrientationX, OrientationY, OrientationZ, SpeedMetersPerSecond from TelemetrySnapshot where Id = '" + id.ToString() + "'";
             return cmd;
         }
     }
