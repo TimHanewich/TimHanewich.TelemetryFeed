@@ -9,7 +9,7 @@ namespace TimHanewich.TelemetryFeed.SessionPackaging
     public class SessionPackage
     {
         //Package serializer version number
-        public const int Version = 1;
+        public const int Version = 2;
 
         public Session Session {get; set;}
         public TelemetrySnapshot LeftLeanCalibration {get; set;}
