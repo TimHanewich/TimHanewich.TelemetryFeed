@@ -124,6 +124,23 @@ namespace TimHanewich.TelemetryFeed.Sql
             return ToReturn.ToArray();
         }
 
+        public async Task<Session> DownloadSessionAsync(Guid id)
+        {
+            SqlConnection sqlcon = GetSqlConnection();
+            sqlcon.Open();
+            SqlCommand sqlcmd = new SqlCommand(CoreSqlExtensions.DownloadSession(id), sqlcon);
+            SqlDataReader dr = await sqlcmd.ExecuteReaderAsync();
+            if (dr.HasRows == false)
+            {
+                sqlcon.Close();
+                throw new Exception("Unable to find Session with Id '" + id.ToString() + "'");
+            }
+            await dr.ReadAsync();
+            Session ToReturn = ExtractSessionFromSqlDataReader(dr);
+            sqlcon.Close();
+            return ToReturn;
+        }
+
         public Session ExtractSessionFromSqlDataReader(SqlDataReader dr, string prefix = "")
         {
             Session s = new Session();
