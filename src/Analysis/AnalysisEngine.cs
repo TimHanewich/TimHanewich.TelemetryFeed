@@ -299,12 +299,16 @@ namespace TimHanewich.TelemetryFeed.Analysis
                                     CurrentVelocityChange = null;
                                     
 
-                                    //Mark the status
-                                    _AccelerationStatus = AccelerationStatus.MaintainingSpeed;
-                                    TryRaiseAccelerationStatusChanged(_AccelerationStatus);
+                                    
                                 }
                             }   
                         }  
+
+
+                        //Mark the status
+                        _AccelerationStatus = AccelerationStatus.MaintainingSpeed;
+                        TryRaiseAccelerationStatusChanged(_AccelerationStatus);
+
                     } 
                 }
             }
