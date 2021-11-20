@@ -132,6 +132,9 @@ namespace TimHanewich.TelemetryFeed.Analysis
 
             #region "Acceleration"
 
+            int OptimalBuffer = 6; //The number of telemetry snapshots to use to calculate (average out the acceleration)
+            TimeSpan MinimumTimeSpanToBelieveAcceleration = TimeSpan.FromMilliseconds(200);
+
 
             //If it is null, make one
             if (BufferForAcceleration == null)
@@ -147,7 +150,6 @@ namespace TimHanewich.TelemetryFeed.Analysis
             BufferForAcceleration = TelemetrySnapshot.OldestToNewest(BufferForAcceleration.ToArray()).ToList();
 
             //Remove the oldest until we get to only 10
-            int OptimalBuffer = 6; //Number of snapshots that is used to calculate
             while (BufferForAcceleration.Count > OptimalBuffer)
             {
                 BufferForAcceleration.RemoveAt(0);
@@ -166,8 +168,11 @@ namespace TimHanewich.TelemetryFeed.Analysis
                     {
                         float SpeedDiff = snap2.SpeedMetersPerSecond.Value - snap1.SpeedMetersPerSecond.Value;
                         TimeSpan span = snap2.CapturedAtUtc - snap1.CapturedAtUtc;
-                        float SpeedDiffTimes = SpeedDiff / Convert.ToSingle(span.TotalSeconds);
-                        Changes.Add(SpeedDiffTimes);
+                        if (span >= MinimumTimeSpanToBelieveAcceleration)
+                        {
+                            float SpeedDiffTimes = SpeedDiff / Convert.ToSingle(span.TotalSeconds);
+                            Changes.Add(SpeedDiffTimes);
+                        }
                     }
                 }
             }
