@@ -88,6 +88,14 @@ namespace TimHanewich.TelemetryFeed.SessionPackaging
             return ToReturn.ToArray();
         }
     
+        public static SessionPackage Unpack(Stream s)
+        {
+            s.Position = 0;
+            MemoryStream ms = new MemoryStream();
+            s.CopyTo(ms);
+            return Unpack(s);
+        }
+
         public static SessionPackage Unpack(byte[] bytes)
         {
             MemoryStream ms = new MemoryStream(bytes);
