@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TimHanewich.Toolkit;
 using TimHanewich.Csv;
 using TimHanewich.Toolkit.Geo;
+using TimHanewich.TelemetryFeed.Analysis;
 
 namespace TimHanewich.TelemetryFeed
 {
@@ -20,16 +21,12 @@ namespace TimHanewich.TelemetryFeed
             return ToReturn.ToArray();
         }
 
-        public static string ToCsv(this TelemetrySnapshot[] snapshots, bool IncludeRowNumber = false, bool CapturedAtInSeconds = false, bool IncludeDistance = false)
+        public static string ToCsv(this TelemetrySnapshot[] snapshots, bool with_additions)
         {
             CsvFile csv = new CsvFile();
             
             //Add header row
             DataRow header = csv.AddNewRow();
-            if (IncludeRowNumber)
-            {
-                header.Values.Add("RowNumber");
-            }
             header.Values.Add("Id");
             header.Values.Add("FromSession");
             header.Values.Add("AccelerationX");
@@ -48,8 +45,9 @@ namespace TimHanewich.TelemetryFeed
             header.Values.Add("OrientationY");
             header.Values.Add("OrientationZ");
             header.Values.Add("GpsAccuracy");
-            if (IncludeDistance)
+            if (with_additions)
             {
+                header.Values.Add("RowNumber");
                 header.Values.Add("DistanceMiles");
             }
 
@@ -65,13 +63,22 @@ namespace TimHanewich.TelemetryFeed
 
 
             //add each row
+            AnalysisEngine ae = new AnalysisEngine();
             int rn = 1;
             foreach (TelemetrySnapshot ts in snapshots)
             {
                 DataRow dr = csv.AddNewRow();
-                if (IncludeRowNumber)
+
+                //Feed to analysis engine if additions asked for
+                if (with_additions)
                 {
-                    dr.Values.Add(rn.ToString());
+                    ae.Feed(ts);
+                }
+
+                //Row number, ID, FromSession
+                if (with_additions)
+                {
+                    
                 }
                 dr.Values.Add(ts.Id.ToString());
                 dr.Values.Add(ts.FromSession.ToString());
@@ -173,7 +180,7 @@ namespace TimHanewich.TelemetryFeed
                 }
 
                 //CapturedAtutc
-                if (CapturedAtInSeconds)
+                if (with_additions)
                 {
                     TimeSpan TimeSince = ts.CapturedAtUtc - OldestUtc;
                     dr.Values.Add(TimeSince.TotalSeconds.ToString());
@@ -221,32 +228,20 @@ namespace TimHanewich.TelemetryFeed
                     dr.Values.Add("");
                 }
 
-                //Include distance?
-                if (IncludeDistance)
+                //Include additions?
+                if (with_additions)
                 {
-                    if (rn == 1) //If it is the first row, just show 0
+
+                    //Row number
+                    dr.Values.Add(rn.ToString());
+
+                    //Velocity
+                    if (ae.AccelerationMetersPerSecond.HasValue)
                     {
-                        dr.Values.Add("");
+                        dr.Values.Add
                     }
-                    else
-                    {
-                        TelemetrySnapshot last = snapshots[rn - 2];
-                        if (last.Latitude.HasValue && last.Longitude.HasValue && ts.Latitude.HasValue && ts.Longitude.HasValue)
-                        {
-                            Geolocation loc1 = new Geolocation();
-                            loc1.Latitude = last.Latitude.Value;
-                            loc1.Longitude = last.Longitude.Value;
-                            Geolocation loc2 = new Geolocation();
-                            loc2.Latitude = ts.Latitude.Value;
-                            loc2.Longitude = ts.Longitude.Value;
-                            Distance d = GeoToolkit.MeasureDistance(loc1, loc2);
-                            dr.Values.Add(d.Miles.ToString());
-                        }
-                        else
-                        {
-                            dr.Values.Add("");
-                        }
-                    }
+
+
                 }
 
                 //INCREMENTE ROW #
