@@ -16,7 +16,7 @@ namespace TimHanewich.TelemetryFeed.SessionPackaging
         public TelemetrySnapshot RightLeanCalibration {get; set;}
         public TelemetrySnapshot[] TelemetrySnapshots {get; set;}
 
-        public byte[] Package()
+        public byte[] Pack()
         {
             MemoryStream ToReturn = new MemoryStream();
             ZipArchive za = new ZipArchive(ToReturn, ZipArchiveMode.Create, true);
