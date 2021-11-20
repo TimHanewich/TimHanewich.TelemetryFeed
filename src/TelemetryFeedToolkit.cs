@@ -4,6 +4,8 @@ using TimHanewich.Toolkit;
 using TimHanewich.Csv;
 using TimHanewich.Toolkit.Geo;
 using TimHanewich.TelemetryFeed.Analysis;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace TimHanewich.TelemetryFeed
 {
@@ -21,235 +23,39 @@ namespace TimHanewich.TelemetryFeed
             return ToReturn.ToArray();
         }
 
-        public static string ToCsv(this TelemetrySnapshot[] snapshots, bool with_additions)
+        public static string ToCsvContent(this TelemetrySnapshot[] snapshots, bool with_additions)
         {
-            CsvFile csv = new CsvFile();
             
-            //Add header row
-            DataRow header = csv.AddNewRow();
-            header.Values.Add("Id");
-            header.Values.Add("FromSession");
-            header.Values.Add("AccelerationX");
-            header.Values.Add("AccelerationY");
-            header.Values.Add("AccelerationZ");
-            header.Values.Add("GyroscopeX");
-            header.Values.Add("GyroscopeY");
-            header.Values.Add("GyroscopeZ");
-            header.Values.Add("MagnetoX");
-            header.Values.Add("MagnetoY");
-            header.Values.Add("MagnetoZ");
-            header.Values.Add("Latitude");
-            header.Values.Add("Longitude");
-            header.Values.Add("CapturedAtUtc");
-            header.Values.Add("OrientationX");
-            header.Values.Add("OrientationY");
-            header.Values.Add("OrientationZ");
-            header.Values.Add("GpsAccuracy");
-            if (with_additions)
-            {
-                header.Values.Add("RowNumber");
-                header.Values.Add("DistanceMiles");
-            }
-
-            //Get the oldest
-            DateTime OldestUtc = DateTime.UtcNow;
-            foreach (TelemetrySnapshot ts in snapshots)
-            {
-                if (ts.CapturedAtUtc < OldestUtc)
-                {
-                    OldestUtc = ts.CapturedAtUtc;
-                }
-            }
-
-
-            //add each row
+            List<JObject> DataToConvert = new List<JObject>();
             AnalysisEngine ae = new AnalysisEngine();
-            int rn = 1;
             foreach (TelemetrySnapshot ts in snapshots)
             {
-                DataRow dr = csv.AddNewRow();
+                JObject ToAdd = JObject.Parse(JsonConvert.SerializeObject(ts));
 
-                //Feed to analysis engine if additions asked for
+                //If with additions, feed and write values if they are there.
                 if (with_additions)
                 {
+                    //Feed
                     ae.Feed(ts);
-                }
 
-                //Row number, ID, FromSession
-                if (with_additions)
-                {
-                    
-                }
-                dr.Values.Add(ts.Id.ToString());
-                dr.Values.Add(ts.FromSession.ToString());
-                
-                //Acceleration
-                if (ts.AccelerationX.HasValue)
-                {
-                    dr.Values.Add(ts.AccelerationX.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-                if (ts.AccelerationY.HasValue)
-                {
-                    dr.Values.Add(ts.AccelerationY.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-                if (ts.AccelerationZ.HasValue)
-                {
-                    dr.Values.Add(ts.AccelerationZ.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-
-                //Gyroscope
-                if (ts.GyroscopeX.HasValue)
-                {
-                    dr.Values.Add(ts.GyroscopeX.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-                if (ts.GyroscopeY.HasValue)
-                {
-                    dr.Values.Add(ts.GyroscopeY.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-                if (ts.GyroscopeZ.HasValue)
-                {
-                    dr.Values.Add(ts.GyroscopeZ.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-
-                //Magneto
-                if (ts.MagnetoX.HasValue)
-                {
-                    dr.Values.Add(ts.MagnetoX.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-                if (ts.MagnetoY.HasValue)
-                {
-                    dr.Values.Add(ts.MagnetoY.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-                if (ts.MagnetoZ.HasValue)
-                {
-                    dr.Values.Add(ts.MagnetoZ.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-
-                //Lat + long
-                if (ts.Latitude.HasValue)
-                {
-                    dr.Values.Add(ts.Latitude.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-                if (ts.Longitude.HasValue)
-                {
-                    dr.Values.Add(ts.Longitude.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-
-                //CapturedAtutc
-                if (with_additions)
-                {
-                    TimeSpan TimeSince = ts.CapturedAtUtc - OldestUtc;
-                    dr.Values.Add(TimeSince.TotalSeconds.ToString());
-                }
-                else
-                {
-                    dr.Values.Add(ts.CapturedAtUtc.ToString());
-                }
-
-
-                //Orientation
-                if (ts.OrientationX.HasValue)
-                {
-                    dr.Values.Add(ts.OrientationX.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-                if (ts.OrientationY.HasValue)
-                {
-                    dr.Values.Add(ts.OrientationY.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-                if (ts.OrientationZ.HasValue)
-                {
-                    dr.Values.Add(ts.OrientationZ.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-
-
-                //Gps Accuracy
-                if (ts.GpsAccuracy.HasValue)
-                {
-                    dr.Values.Add(ts.GpsAccuracy.Value.ToString());
-                }
-                else
-                {
-                    dr.Values.Add("");
-                }
-
-                //Include additions?
-                if (with_additions)
-                {
-
-                    //Row number
-                    dr.Values.Add(rn.ToString());
-
-                    //Velocity
-                    if (ae.AccelerationMetersPerSecond.HasValue)
+                    //Acceleration
+                    if (ae.AccelerationMPS2.HasValue)
                     {
-                        dr.Values.Add
+                        ToAdd.Add("AccelerationMPS2", ae.AccelerationMPS2.Value.ToString());
                     }
 
+                    //Status
+                    ToAdd.Add("Status", ae.Status.ToString());
 
+                    //Acceleraion status
+                    ToAdd.Add("AccelerationStatus", ae.AccelerationStatus.ToString());
                 }
 
-                //INCREMENTE ROW #
-                rn = rn + 1;
+                DataToConvert.Add(ToAdd);
             }
 
-
-            return csv.GenerateAsCsvFileContent();
+            CsvFile ToReturn = CsvToolkit.JsonToCsv(DataToConvert.ToArray());
+            return ToReturn.GenerateAsCsvFileContent();            
         }
 
         
