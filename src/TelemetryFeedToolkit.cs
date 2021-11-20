@@ -28,6 +28,7 @@ namespace TimHanewich.TelemetryFeed
             
             List<JObject> DataToConvert = new List<JObject>();
             AnalysisEngine ae = new AnalysisEngine();
+            int rn = 1; //row number
             foreach (TelemetrySnapshot ts in snapshots)
             {
                 JObject ToAdd = JObject.Parse(JsonConvert.SerializeObject(ts));
@@ -37,6 +38,9 @@ namespace TimHanewich.TelemetryFeed
                 {
                     //Feed
                     ae.Feed(ts);
+
+                    //Row number
+                    ToAdd.Add("Index", rn.ToString());
 
                     //Acceleration
                     if (ae.AccelerationMPS2.HasValue)
@@ -51,6 +55,7 @@ namespace TimHanewich.TelemetryFeed
                     ToAdd.Add("AccelerationStatus", ae.AccelerationStatus.ToString());
                 }
 
+                rn = rn + 1;
                 DataToConvert.Add(ToAdd);
             }
 
