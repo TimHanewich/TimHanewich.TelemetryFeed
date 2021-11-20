@@ -181,5 +181,11 @@ namespace TimHanewich.TelemetryFeed.Sql
             string cmd = "select top " + top.ToString() + " Id, FromSession, CapturedAtUtc, AccelerationX, AccelerationY, AccelerationZ, GyroscopeX, GyroscopeY, GyroscopeZ, MagnetoX, MagnetoY, MagnetoZ, Latitude, Longitude, GpsAccuracy, OrientationX, OrientationY, OrientationZ, SpeedMetersPerSecond from TelemetrySnapshot where FromSession = '" + from_session.ToString() + "' order by CapturedAtUtc desc";
             return cmd;
         }
+
+        public static string DownloadTelemetrySnapshot(Guid id)
+        {
+            string cmd = "select Id, FromSession, CapturedAtUtc, AccelerationX, AccelerationY, AccelerationZ, GyroscopeX, GyroscopeY, GyroscopeZ, MagnetoX, MagnetoY, MagnetoZ, Latitude, Longitude, GpsAccuracy, OrientationX, OrientationY, OrientationZ, SpeedMetersPerSecond from TelemetrySnapshot where Id = '" + id.ToString();
+            return cmd;
+        }
     }
 }

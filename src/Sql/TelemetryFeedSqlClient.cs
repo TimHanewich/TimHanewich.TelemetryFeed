@@ -194,6 +194,24 @@ namespace TimHanewich.TelemetryFeed.Sql
 
 
         //SQL Downloads
+
+        public async Task<TelemetrySnapshot> DownloadTelemetrySnapshotAsync(Guid id)
+        {
+            string cmd = CoreSqlExtensions.DownloadTelemetrySnapshot(id);
+            SqlConnection sqlcon = GetSqlConnection();
+            sqlcon.Open();
+            SqlCommand sqlcmd = new SqlCommand(cmd, sqlcon);
+            SqlDataReader dr = await sqlcmd.ExecuteReaderAsync();
+            if (dr.HasRows == false)
+            {
+                sqlcon.Close();
+                throw new Exception("Unable to find TelemetrySnapshot with Id '" + id.ToString() + "'");
+            }
+            await dr.ReadAsync();
+            TelemetrySnapshot ToReturn = ExtractTelemetrySnapshotFromSqlDataReader(dr);
+            sqlcon.Close();
+            return ToReturn;
+        }
         
         //Will download in order from newest to oldest
         public async Task<TelemetrySnapshot[]> DownloadTelemetrySnapshotsAsync(Guid from_session, int top = 20)
