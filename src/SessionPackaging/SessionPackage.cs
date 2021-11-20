@@ -93,7 +93,7 @@ namespace TimHanewich.TelemetryFeed.SessionPackaging
             s.Position = 0;
             MemoryStream ms = new MemoryStream();
             s.CopyTo(ms);
-            return Unpack(s);
+            return Unpack(ms);
         }
 
         public static SessionPackage Unpack(byte[] bytes)
