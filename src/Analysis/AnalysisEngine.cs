@@ -134,6 +134,8 @@ namespace TimHanewich.TelemetryFeed.Analysis
 
             int OptimalBuffer = 6; //The number of telemetry snapshots to use to calculate (average out the acceleration)
             TimeSpan MinimumTimeSpanToBelieveAcceleration = TimeSpan.FromMilliseconds(200);
+            bool TrimAnomolies = false; //Should the data be put through a z-score/st dev calculation to trim the anomolies?
+            float TrimAnomolyZScoresBeyond = 1.2f; //Values with a z score beyond this (positive or negative) will be trimmed.
 
 
             //If it is null, make one
@@ -174,6 +176,25 @@ namespace TimHanewich.TelemetryFeed.Analysis
                             Changes.Add(SpeedDiffTimes);
                         }
                     }
+                }
+            }
+
+            //Throw out the anomolies? (only need to trim if there is data)
+            if (Changes.Count > 2)
+            {
+                if (TrimAnomolies)
+                {
+                    float StDev = TimHanewich.Toolkit.MathToolkit.StandardDeviation(Changes.ToArray());
+                    List<float> ToUse = new List<float>();
+                    foreach (float f in Changes)
+                    {
+                        float zscore = (f - Changes.Average()) / StDev;
+                        if (Math.Abs(zscore) <= TrimAnomolyZScoresBeyond)
+                        {
+                            ToUse.Add(f);
+                        }
+                    }
+                    Changes = ToUse.ToList();
                 }
             }
             
