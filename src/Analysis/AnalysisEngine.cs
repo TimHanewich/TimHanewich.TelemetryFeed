@@ -203,12 +203,8 @@ namespace TimHanewich.TelemetryFeed.Analysis
             //Return
             if (Changes.Count > 0)
             {
-                _AccelerationMPS2 = Changes.Average();
+                AddToAccelerationMPS2Buffer(Changes.Average());
             }  
-            else
-            {
-                _AccelerationMPS2 = null;
-            }
 
 
             #endregion
@@ -348,7 +344,15 @@ namespace TimHanewich.TelemetryFeed.Analysis
         {
             get
             {
-                return _AccelerationMPS2;
+                if (AccelerationMPS2Buffer.Count > 1)
+                {
+                    return AccelerationMPS2Buffer.Average();
+                }
+                else
+                {
+                    return null;
+                }
+                
             }
         }
 
@@ -379,11 +383,16 @@ namespace TimHanewich.TelemetryFeed.Analysis
 
         #region "Acceleration/velocity changing"
 
+
+        //Buffer for calculating the acceleration (rolling average)
+        private int OptimalAccelerationBufferLength = 2;
+        private List<float> AccelerationMPS2Buffer = new List<float>(); //Arranged from oldest to newest
+
+
         //Acceleration change
         public event AccelerationStatusHandler AccelerationStatusChanged;
         public event VelocityChangeHandler VelocityChangeRecorded;
         private List<TelemetrySnapshot> BufferForAcceleration;
-        private float? _AccelerationMPS2;
         private AccelerationStatus _AccelerationStatus;
         private List<VelocityChange> _VelocityChanges;
         private VelocityChange CurrentVelocityChange;
@@ -433,6 +442,17 @@ namespace TimHanewich.TelemetryFeed.Analysis
             catch
             {
 
+            }
+        }
+
+        private void AddToAccelerationMPS2Buffer(float value)
+        {
+            AccelerationMPS2Buffer.Add(value);
+            
+            //Trim
+            while (AccelerationMPS2Buffer.Count > OptimalAccelerationBufferLength)
+            {
+                AccelerationMPS2Buffer.RemoveAt(0);
             }
         }
 
