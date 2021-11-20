@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.Sql;
 using System.Data.SqlClient;
 using System.Collections.Generic;
+using TimHanewich.TelemetryFeed.SessionPackaging;
 
 namespace TimHanewich.TelemetryFeed.Sql
 {
@@ -456,7 +457,66 @@ namespace TimHanewich.TelemetryFeed.Sql
 
         #endregion
     
-    
+        #region "SessionPackage downloading"
+
+        public async Task<SessionPackage> AssembleSessionPackageAsync(Guid session_id)
+        {
+            SessionPackage ToReturn = new SessionPackage();
+
+            //Get the session
+            try
+            {
+                ToReturn.Session = await DownloadSessionAsync(session_id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Fatal error while downloading Session: " + ex.Message);
+            }
+
+            //Get the left lean calibration
+            if (ToReturn.Session.LeftLeanCalibration.HasValue)
+            {
+                try
+                {
+                    ToReturn.LeftLeanCalibration = await DownloadTelemetrySnapshotAsync(ToReturn.Session.LeftLeanCalibration.Value);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Fatal error while downloading left lean calibration: " + ex.Message);
+                }
+            }
+
+            //Download the right lean calibration
+            if (ToReturn.Session.RightLeanCalibration.HasValue)
+            {
+                try
+                {
+                    ToReturn.RightLeanCalibration = await DownloadTelemetrySnapshotAsync(ToReturn.Session.RightLeanCalibration.Value);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Fatal error while downloading right lean calibration: " + ex.Message);
+                }
+            }
+
+            //Download the telemetry snapshots
+            try
+            {
+                TelemetrySnapshot[] snapshots = await DownloadTelemetrySnapshotsAsync(ToReturn.Session.Id, int.MaxValue);
+                ToReturn.TelemetrySnapshots = snapshots;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Fatal failure while downloading Telemetry Snapshots: " + ex.Message);
+            }
+            
+
+            return ToReturn;
+
+        }
+
+
+        #endregion
     
     }
 }
