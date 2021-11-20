@@ -170,6 +170,7 @@ namespace TimHanewich.TelemetryFeed.SessionPackaging
                 ms_TelemetrySnapshots.Position = 0;
                 byte[] TSBytes = ms_TelemetrySnapshots.ToArray();
                 TelemetrySnapshot[] snapshots = TelemetrySnapshot.ArrayFromBytes(TSBytes);
+                snapshots = TelemetrySnapshot.OldestToNewest(snapshots);
                 ToReturn.TelemetrySnapshots = snapshots;
             }
             
