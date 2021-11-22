@@ -91,9 +91,9 @@ namespace TimHanewich.TelemetryFeed.Service
     
         //Downloads
 
-        public async Task<Session[]> DownloadSessionsAsync(Guid owner_id)
+        public async Task<Session[]> DownloadSessionsAsync(int top, Guid owner_id)
         {
-            string cmd = CoreSqlExtensions.DownloadSessions(owner_id);
+            string cmd = CoreSqlExtensions.DownloadSessions(top, owner_id);
 
             //Call
             string response = null;
