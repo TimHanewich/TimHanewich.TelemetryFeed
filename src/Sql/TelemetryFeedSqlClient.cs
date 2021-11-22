@@ -109,9 +109,9 @@ namespace TimHanewich.TelemetryFeed.Sql
             return ru;
         }
 
-        public async Task <Session[]> DownloadSessionsAsync(Guid owner_id)
+        public async Task <Session[]> DownloadSessionsAsync(int top, Guid? owner_id)
         {
-            string cmd = CoreSqlExtensions.DownloadSessions(owner_id);
+            string cmd = CoreSqlExtensions.DownloadSessions(top, owner_id);
             SqlConnection sqlcon = GetSqlConnection();
             sqlcon.Open();
             SqlCommand sqlcmd = new SqlCommand(cmd, sqlcon);
