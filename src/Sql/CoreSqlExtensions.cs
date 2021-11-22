@@ -151,9 +151,14 @@ namespace TimHanewich.TelemetryFeed.Sql
 
 
         //DOWNLOADS
-        public static string DownloadSessions(Guid owner_id)
+        public static string DownloadSessions(int top, Guid? owner_id)
         {
-            string cmd = "select Id,Owner,Title,CreatedAtUtc,RightLeanCalibration,LeftLeanCalibration, ClientVersionCode from Session where Owner = '" + owner_id.ToString() + "' order by CreatedAtUtc desc";
+            string cmd = "select top " + top.ToString() + " Id,Owner,Title,CreatedAtUtc,RightLeanCalibration,LeftLeanCalibration, ClientVersionCode from Session";
+            if (owner_id.HasValue)
+            {
+                cmd = cmd + Environment.NewLine + "where Owner = '" + owner_id.Value.ToString() + "'";
+            }
+            cmd = cmd + Environment.NewLine + "order by CreatedAtUtc desc";
             return cmd;
         }
 
