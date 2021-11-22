@@ -205,6 +205,16 @@ namespace TimHanewich.TelemetryFeed.Sql
             {
 
             }
+
+            //Client code
+            try
+            {
+                s.ClientVersionCode = dr.GetInt16(dr.GetOrdinal(prefix + "ClientVersionCode"));
+            }
+            catch
+            {
+                
+            }
             
             return s;
         }
