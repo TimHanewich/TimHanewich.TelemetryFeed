@@ -203,7 +203,7 @@ namespace TimHanewich.TelemetryFeed.Sql
 
         public static string DeleteTelemetrySnapshots(Guid from_session_id)
         {
-            return "delete from TelemetrySnapshots where FromSession = '" + from_session_id.ToString() + "'";
+            return "delete from TelemetrySnapshot where FromSession = '" + from_session_id.ToString() + "'";
         }
 
 
