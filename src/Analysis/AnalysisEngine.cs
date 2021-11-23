@@ -278,30 +278,32 @@ namespace TimHanewich.TelemetryFeed.Analysis
                         TimeSpan DurationOfThisPossibleVelocityChange = ts.CapturedAtUtc - CurrentVelocityChange.BeginningUtc;
                         if (DurationOfThisPossibleVelocityChange >= MinimumVelocityChangeDuration)
                         {
-                            
-                            //Also only book the change if the ending speed is not the same as the beginning speed (this would NOT be a velocity change)
-                            if (ts.SpeedMetersPerSecond.Value != CurrentVelocityChange.BeginningSpeedMetersPerSecond)
+                            if (ts.SpeedMetersPerSecond.HasValue)
                             {
-
-                                //Also only book the change if the difference in speeds is more than a certain amount
-                                if (Math.Abs(ts.SpeedMetersPerSecond.Value - CurrentVelocityChange.BeginningSpeedMetersPerSecond) >= MinimumMetersPerSecondChange)
+                                //Also only book the change if the ending speed is not the same as the beginning speed (this would NOT be a velocity change)
+                                if (ts.SpeedMetersPerSecond.Value != CurrentVelocityChange.BeginningSpeedMetersPerSecond)
                                 {
-                                    //Book the change
-                                    CurrentVelocityChange.EndingSnapshot = ts.Id;
-                                    CurrentVelocityChange.EndingSpeedMetersPerSecond = ts.SpeedMetersPerSecond.Value;
-                                    CurrentVelocityChange.EndingUtc = ts.CapturedAtUtc;
-                                    
-                                    //Raise the event (well, try to)
-                                    TryRaiseVelocityChangeRecorded(CurrentVelocityChange);
 
-                                    //Add it to the list and move on (prepare for the next one)
-                                    _VelocityChanges.Add(CurrentVelocityChange);
-                                    CurrentVelocityChange = null;
-                                    
+                                    //Also only book the change if the difference in speeds is more than a certain amount
+                                    if (Math.Abs(ts.SpeedMetersPerSecond.Value - CurrentVelocityChange.BeginningSpeedMetersPerSecond) >= MinimumMetersPerSecondChange)
+                                    {
+                                        //Book the change
+                                        CurrentVelocityChange.EndingSnapshot = ts.Id;
+                                        CurrentVelocityChange.EndingSpeedMetersPerSecond = ts.SpeedMetersPerSecond.Value;
+                                        CurrentVelocityChange.EndingUtc = ts.CapturedAtUtc;
+                                        
+                                        //Raise the event (well, try to)
+                                        TryRaiseVelocityChangeRecorded(CurrentVelocityChange);
 
-                                    
-                                }
-                            }   
+                                        //Add it to the list and move on (prepare for the next one)
+                                        _VelocityChanges.Add(CurrentVelocityChange);
+                                        CurrentVelocityChange = null;
+                                        
+
+                                        
+                                    }
+                                }  
+                            }
                         }  
 
 
