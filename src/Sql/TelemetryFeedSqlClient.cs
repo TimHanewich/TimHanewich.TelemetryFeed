@@ -265,6 +265,36 @@ namespace TimHanewich.TelemetryFeed.Sql
             return val;
         }
 
+
+
+
+
+
+        //Deletes
+
+        public async Task DeleteSessionAsync(Guid id)
+        {
+            await ExecuteNonQueryAsync(CoreSqlExtensions.DeleteSession(id));
+        }
+
+        public async Task DeleteTelemetrySnapshotAsync(Guid id)
+        {
+            await ExecuteNonQueryAsync(CoreSqlExtensions.DeleteTelemetrySnapshot(id));
+        }
+
+        public async Task DeleteTelemetrySnapshotsAsync(Guid from_session_id)
+        {
+            await ExecuteNonQueryAsync(CoreSqlExtensions.DeleteTelemetrySnapshots(from_session_id));
+        }
+
+
+
+
+
+
+
+        //Reusable
+
         public async Task<int> ExecuteSqlCount(string cmd)
         {
             SqlConnection sqlcon = GetSqlConnection();
@@ -293,6 +323,10 @@ namespace TimHanewich.TelemetryFeed.Sql
             sqlcon.Close();
             return ToReturn;
         }
+
+
+
+
 
 
         //SQL checks
