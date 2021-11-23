@@ -189,6 +189,25 @@ namespace TimHanewich.TelemetryFeed.Sql
 
 
 
+
+        //Delete
+        public static string DeleteSession(Guid id)
+        {
+            return "delete from Session where Id = '" + id.ToString() + "'";
+        }
+
+        public static string DeleteTelemetrySnapshot(Guid id)
+        {
+            return "delete from TelemetrySnapshot where Id = '" + id.ToString() + "'";
+        }
+
+        public static string DeleteTelemetrySnapshots(Guid from_session_id)
+        {
+            return "delete from TelemetrySnapshots where FromSession = '" + from_session_id.ToString() + "'";
+        }
+
+
+
         //Statistics
         public static string CountTelemetrySnapshots(Guid? from_session)
         {
