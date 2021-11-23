@@ -186,6 +186,23 @@ namespace TimHanewich.TelemetryFeed.Sql
             return cmd;
         }
         
+
+
+
+        //Statistics
+        public static string CountTelemetrySnapshots(Guid? from_session)
+        {
+            string cmd = "select count(Id) from TelemetrySnapshot";
+            if (from_session.HasValue)
+            {
+                cmd = cmd + Environment.NewLine + "where FromSession = '" + from_session.Value.ToString() + "'";
+            }
+            return cmd;
+        }
+
+
+
+
         //Arranged from newest to oldest
         public static string DownloadTelemetrySnapshots(Guid from_session, int top = 1)
         {

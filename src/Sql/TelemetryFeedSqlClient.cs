@@ -258,6 +258,41 @@ namespace TimHanewich.TelemetryFeed.Sql
             return ToReturn.ToArray();
         }
 
+        public async Task<int> CountTelemetrySnapshotsAsync(Guid? from_Session)
+        {
+            string cmd = CoreSqlExtensions.CountTelemetrySnapshots(from_Session);
+            int val = await ExecuteSqlCount(cmd);
+            return val;
+        }
+
+        public async Task<int> ExecuteSqlCount(string cmd)
+        {
+            SqlConnection sqlcon = GetSqlConnection();
+            sqlcon.Open();
+            SqlCommand sqlcmd = new SqlCommand(cmd, sqlcon);
+            SqlDataReader dr = await sqlcmd.ExecuteReaderAsync();
+            try
+            {
+                await dr.ReadAsync();
+            }
+            catch (Exception ex)
+            {
+                sqlcon.Close();
+                throw new Exception("Unable to read during count command: " + ex.Message);
+            }
+            int ToReturn = 0;
+            try
+            {
+                ToReturn = dr.GetInt32(0);
+            }
+            catch (Exception ex)
+            {
+                sqlcon.Close();
+                throw new Exception("Unable to read count during count command: " + ex.Message);
+            }
+            sqlcon.Close();
+            return ToReturn;
+        }
 
 
         //SQL checks
